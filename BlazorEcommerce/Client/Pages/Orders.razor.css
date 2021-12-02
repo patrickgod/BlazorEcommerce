@@ -1,0 +1,30 @@
+﻿.container {
+    display: flex;
+    padding: 6px;
+    border: 1px solid;
+    border-color: lightgray;
+    border-radius: 6px;
+    margin-bottom: 10px;
+}
+
+.image-wrapper {
+    width: 150px;
+    text-align: center;
+}
+
+.image {
+    max-height: 150px;
+    max-width: 150px;
+    padding: 6px;
+}
+
+.details {
+    flex-grow: 1;
+    padding: 6px;
+}
+
+.order-price {
+    font-weight: 600;
+    font-size: 1.2em;
+    text-align: right;
+}
