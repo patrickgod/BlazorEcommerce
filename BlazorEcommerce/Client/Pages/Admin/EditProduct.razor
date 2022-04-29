@@ -32,7 +32,21 @@ else
             <InputText id="imageUrl" @bind-Value="product.ImageUrl" class="form-control"></InputText>
         </div>
         <div class="mb-0">
-            <img src="@product.ImageUrl" />
+            @if (!string.IsNullOrEmpty(product.ImageUrl))
+            {
+                <img src="@product.ImageUrl" />
+            }
+            else
+            {
+                foreach (var image in product.Images)
+                {
+                    <img src="@image.Data" />
+                }
+            }
+        </div>
+        <div class="mb-0">
+            <label for="images">Image(s)</label>
+            <InputFile id="images" OnChange="OnFileChange" multiple class="form-control"></InputFile>
         </div>
         <div class="mb-0">
             <label for="description">Description</label>
@@ -190,6 +204,19 @@ else
         {
             await ProductService.DeleteProduct(product);
             NavigationManager.NavigateTo("admin/products");
+        }
+    }
+
+    async Task OnFileChange(InputFileChangeEventArgs e)
+    {
+        var format = "image/png";
+        foreach (var image in e.GetMultipleFiles(int.MaxValue))
+        {
+            var resizedImage = await image.RequestImageFileAsync(format, 200, 200);
+            var buffer = new byte[resizedImage.Size];
+            await resizedImage.OpenReadStream().ReadAsync(buffer);
+            var imageData = $"data:{format};base64,{Convert.ToBase64String(buffer)}";
+            product.Images.Add(new Image { Data = imageData });
         }
     }
 }
