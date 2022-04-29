@@ -10,7 +10,18 @@ else
 {
     <div class="media">
         <div class="media-img-wrapper mr-2">
-            <img class="media-img" src="@product.ImageUrl" alt="@product.Title" />
+            @if (!string.IsNullOrEmpty(product.ImageUrl))
+            {
+                <img class="media-img" src="@product.ImageUrl" alt="@product.Title" />
+            }
+            else
+            {
+                <MudCarousel Class="mud-width-full" ItemsSource="@product.Images" Style="height: 200px;">
+                    <ItemTemplate>
+                        <MudImage Src="@context.Data"></MudImage>>
+                    </ItemTemplate>
+                </MudCarousel>
+            }
         </div>
         <div class="media-body">
             <h2 class="mb-0">@product.Title</h2>
