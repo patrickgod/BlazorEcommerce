@@ -16,7 +16,14 @@ else
                 <div class="featured-product">
                     <div>
                         <a href="product/@product.Id">
-                            <img src="@product.ImageUrl">
+                            @if (!string.IsNullOrEmpty(product.ImageUrl))
+                            {
+                                <img src="@product.ImageUrl">
+                            }
+                            else if (product.Images.Count > 0)
+                            {
+                                <img src="@product.Images[0].Data" />
+                            }
                         </a>
                     </div>
                     <h4><a href="product/@product.Id">@product.Title</a></h4>
