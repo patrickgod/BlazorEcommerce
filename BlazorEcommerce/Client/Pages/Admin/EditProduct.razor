@@ -41,6 +41,7 @@ else
                 foreach (var image in product.Images)
                 {
                     <img src="@image.Data" />
+                    <button type="button" @onclick="(() => RemoveImage(image.Id))">Remove</button>
                 }
             }
         </div>
@@ -217,6 +218,15 @@ else
             await resizedImage.OpenReadStream().ReadAsync(buffer);
             var imageData = $"data:{format};base64,{Convert.ToBase64String(buffer)}";
             product.Images.Add(new Image { Data = imageData });
+        }
+    }
+
+    void RemoveImage(int id)
+    {
+        var image = product.Images.FirstOrDefault(i => i.Id == id);
+        if (image != null)
+        {
+            product.Images.Remove(image);
         }
     }
 }
