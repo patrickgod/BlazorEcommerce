@@ -92,8 +92,8 @@ namespace BlazorEcommerce.Server.Services.OrderService
             decimal totalPrice = 0;
             products.ForEach(product => totalPrice += product.Price * product.Quantity);
 
-            var orderItems = new List<OrderItem>();
-            products.ForEach(product => orderItems.Add(new OrderItem
+            var orderItems = new List<OrderItems>();
+            products.ForEach(product => orderItems.Add(new OrderItems
             {
                 ProductId = product.ProductId,
                 ProductTypeId = product.ProductTypeId,
@@ -101,7 +101,7 @@ namespace BlazorEcommerce.Server.Services.OrderService
                 TotalPrice = product.Price * product.Quantity
             }));
 
-            var order = new Order
+            var order = new Orders
             {
                 UserId = userId,
                 OrderDate = DateTime.Now,

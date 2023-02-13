@@ -58,7 +58,7 @@ else
 }
 
 @code {
-    private Product? product = null;
+    private Products? product = null;
     private string message = string.Empty;
     private int currentTypeId = 1;
 
@@ -84,7 +84,7 @@ else
         }
     }
 
-    private ProductVariant GetSelectedVariant()
+    private ProductVariants GetSelectedVariant()
     {
         var variant = product.Variants.FirstOrDefault(v => v.ProductTypeId == currentTypeId);
         return variant;
@@ -93,7 +93,7 @@ else
     private async Task AddToCart()
     {
         var productVariant = GetSelectedVariant();
-        var cartItem = new CartItem
+        var cartItem = new CartItems
             {
                 ProductId = productVariant.ProductId,
                 ProductTypeId = productVariant.ProductTypeId

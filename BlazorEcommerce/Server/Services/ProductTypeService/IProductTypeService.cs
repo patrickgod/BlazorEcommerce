@@ -2,9 +2,9 @@
 {
     public interface IProductTypeService
     {
-        Task<ServiceResponse<List<ProductType>>> GetProductTypes();
-        Task<ServiceResponse<List<ProductType>>> AddProductType(ProductType productType);
-        Task<ServiceResponse<List<ProductType>>> UpdateProductType(ProductType productType);
+        Task<ServiceResponse<List<ProductTypes>>> GetProductTypes();
+        Task<ServiceResponse<List<ProductTypes>>> AddProductType(ProductTypes productType);
+        Task<ServiceResponse<List<ProductTypes>>> UpdateProductType(ProductTypes productType);
 
 
     }

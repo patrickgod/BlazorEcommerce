@@ -8,12 +8,14 @@ using System.Threading.Tasks;
 
 namespace BlazorEcommerce.Shared
 {
-    public class ProductVariant
+    public class ProductVariants
     {
-        [JsonIgnore]
-        public Product? Product { get; set; }
+
+
+        [ForeignKey("ProductId")]
         public int ProductId { get; set; }
-        public ProductType? ProductType { get; set; }
+
+        [ForeignKey("ProductTypeId")]
         public int ProductTypeId { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
@@ -27,5 +29,19 @@ namespace BlazorEcommerce.Shared
         public bool Editing { get; set; } = false;
         [NotMapped]
         public bool IsNew { get; set; } = false;
+
+        //[JsonIgnore]
+        //[NotMapped]
+        //public Products? Products { get; set; }
+
+        [JsonIgnore]
+        [NotMapped]
+        public Products? Product { get; set; }
+
+        [JsonIgnore]
+        [NotMapped]
+        public ProductTypes? ProductType { get; set; }
+
+
     }
 }

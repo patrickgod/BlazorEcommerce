@@ -2,7 +2,7 @@
 {
     public interface IAddressService
     {
-        Task<Address> GetAddress();
-        Task<Address> AddOrUpdateAddress(Address address);
+        Task<Addresses> GetAddress();
+        Task<Addresses> AddOrUpdateAddress(Addresses address);
     }
 }

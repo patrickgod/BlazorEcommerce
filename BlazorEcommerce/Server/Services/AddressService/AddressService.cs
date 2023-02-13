@@ -11,9 +11,9 @@
             _authService = authService;
         }
 
-        public async Task<ServiceResponse<Address>> AddOrUpdateAddress(Address address)
+        public async Task<ServiceResponse<Addresses>> AddOrUpdateAddress(Addresses address)
         {
-            var response = new ServiceResponse<Address>();
+            var response = new ServiceResponse<Addresses>();
             var dbAddress = (await GetAddress()).Data;
             if (dbAddress == null)
             {
@@ -38,12 +38,12 @@
             return response;
         }
 
-        public async Task<ServiceResponse<Address>> GetAddress()
+        public async Task<ServiceResponse<Addresses>> GetAddress()
         {
             int userId = _authService.GetUserId();
             var address = await _context.Addresses
                 .FirstOrDefaultAsync(a => a.UserId == userId);
-            return new ServiceResponse<Address> { Data = address };
+            return new ServiceResponse<Addresses> { Data = address };
         }
     }
 }

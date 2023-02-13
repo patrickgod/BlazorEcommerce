@@ -2,10 +2,10 @@
 {
     public interface ICategoryService
     {
-        Task<ServiceResponse<List<Category>>> GetCategories();
-        Task<ServiceResponse<List<Category>>> GetAdminCategories();
-        Task<ServiceResponse<List<Category>>> AddCategory(Category category);
-        Task<ServiceResponse<List<Category>>> UpdateCategory(Category category);
-        Task<ServiceResponse<List<Category>>> DeleteCategory(int id);
+        Task<ServiceResponse<List<Categories>>> GetCategories();
+        Task<ServiceResponse<List<Categories>>> GetAdminCategories();
+        Task<ServiceResponse<List<Categories>>> AddCategory(Categories category);
+        Task<ServiceResponse<List<Categories>>> UpdateCategory(Categories category);
+        Task<ServiceResponse<List<Categories>>> DeleteCategory(int id);
     }
 }

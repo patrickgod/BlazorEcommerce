@@ -1,19 +1,31 @@
 ﻿{
    "CodeGenerationMode": 2,
-   "ContextClassName": "GGACADEMYContext",
+   "ContextClassName": "DataContext",
    "ContextNamespace": null,
    "DefaultDacpacSchema": null,
    "FilterSchemas": false,
    "IncludeConnectionString": false,
    "ModelNamespace": null,
    "OutputContextPath": "Data",
-   "OutputPath": "Data",
+   "OutputPath": "Delete",
    "PreserveCasingWithRegex": true,
    "ProjectRootNamespace": "BlazorEcommerce.Server",
    "Schemas": null,
    "SelectedHandlebarsLanguage": 0,
    "SelectedToBeGenerated": 0,
    "Tables": [
+      {
+         "Name": "[dbo].[Addresses]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[CartItems]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Categories]",
+         "ObjectType": 0
+      },
       {
          "Name": "[dbo].[CLASS]",
          "ObjectType": 0
@@ -23,11 +35,39 @@
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[Images]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[MONTHS]",
          "ObjectType": 0
       },
       {
+         "Name": "[dbo].[OrderItems]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Orders]",
+         "ObjectType": 0
+      },
+      {
          "Name": "[dbo].[PERSON]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Products]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ProductTypes]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[ProductVariants]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Users]",
          "ObjectType": 0
       }
    ],

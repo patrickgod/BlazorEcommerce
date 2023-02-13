@@ -13,7 +13,7 @@ namespace BlazorEcommerce.Server.Services.CartService
             _authService = authService;
         }
 
-        public async Task<ServiceResponse<List<CartProductResponse>>> GetCartProducts(List<CartItem> cartItems)
+        public async Task<ServiceResponse<List<CartProductResponse>>> GetCartProducts(List<CartItems> cartItems)
         {
             var result = new ServiceResponse<List<CartProductResponse>>
             {
@@ -59,7 +59,7 @@ namespace BlazorEcommerce.Server.Services.CartService
             return result;
         }
 
-        public async Task<ServiceResponse<List<CartProductResponse>>> StoreCartItems(List<CartItem> cartItems)
+        public async Task<ServiceResponse<List<CartProductResponse>>> StoreCartItems(List<CartItems> cartItems)
         {
             cartItems.ForEach(cartItem => cartItem.UserId = _authService.GetUserId());
             _context.CartItems.AddRange(cartItems);
@@ -83,7 +83,7 @@ namespace BlazorEcommerce.Server.Services.CartService
                 .Where(ci => ci.UserId == userId).ToListAsync());
         }
 
-        public async Task<ServiceResponse<bool>> AddToCart(CartItem cartItem)
+        public async Task<ServiceResponse<bool>> AddToCart(CartItems cartItem)
         {
             cartItem.UserId = _authService.GetUserId();
 
@@ -104,7 +104,7 @@ namespace BlazorEcommerce.Server.Services.CartService
             return new ServiceResponse<bool> { Data = true };
         }
 
-        public async Task<ServiceResponse<bool>> UpdateQuantity(CartItem cartItem)
+        public async Task<ServiceResponse<bool>> UpdateQuantity(CartItems cartItem)
         {
             var dbCartItem = await _context.CartItems
                 .FirstOrDefaultAsync(ci => ci.ProductId == cartItem.ProductId &&

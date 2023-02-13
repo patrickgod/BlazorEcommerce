@@ -16,21 +16,21 @@ namespace BlazorEcommerce.Server.Controllers
         }
 
         [HttpGet("admin"), Authorize(Roles = "Admin")]
-        public async Task<ActionResult<ServiceResponse<List<Product>>>> GetAdminProducts()
+        public async Task<ActionResult<ServiceResponse<List<Products>>>> GetAdminProducts()
         {
             var result = await _productService.GetAdminProducts();
             return Ok(result);
         }
 
         [HttpPost, Authorize(Roles = "Admin")]
-        public async Task<ActionResult<ServiceResponse<Product>>> CreateProduct(Product product)
+        public async Task<ActionResult<ServiceResponse<Products>>> CreateProduct(Products product)
         {
             var result = await _productService.CreateProduct(product);
             return Ok(result);
         }
 
         [HttpPut, Authorize(Roles = "Admin")]
-        public async Task<ActionResult<ServiceResponse<Product>>> UpdateProduct(Product product)
+        public async Task<ActionResult<ServiceResponse<Products>>> UpdateProduct(Products product)
         {
             var result = await _productService.UpdateProduct(product);
             return Ok(result);
@@ -44,21 +44,21 @@ namespace BlazorEcommerce.Server.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<ServiceResponse<List<Product>>>> GetProducts()
+        public async Task<ActionResult<ServiceResponse<List<Products>>>> GetProducts()
         {
             var result = await _productService.GetProductsAsync();
             return Ok(result);
         }
 
         [HttpGet("{productId}")]
-        public async Task<ActionResult<ServiceResponse<Product>>> GetProduct(int productId)
+        public async Task<ActionResult<ServiceResponse<Products>>> GetProduct(int productId)
         {
             var result = await _productService.GetProductAsync(productId);
             return Ok(result);
         }
 
         [HttpGet("category/{categoryUrl}")]
-        public async Task<ActionResult<ServiceResponse<List<Product>>>> GetProductsByCategory(string categoryUrl)
+        public async Task<ActionResult<ServiceResponse<List<Products>>>> GetProductsByCategory(string categoryUrl)
         {
             var result = await _productService.GetProductsByCategory(categoryUrl);
             return Ok(result);
@@ -72,14 +72,14 @@ namespace BlazorEcommerce.Server.Controllers
         }
 
         [HttpGet("searchsuggestions/{searchText}")]
-        public async Task<ActionResult<ServiceResponse<List<Product>>>> GetProductSearchSuggestions(string searchText)
+        public async Task<ActionResult<ServiceResponse<List<Products>>>> GetProductSearchSuggestions(string searchText)
         {
             var result = await _productService.GetProductSearchSuggestions(searchText);
             return Ok(result);
         }
 
         [HttpGet("featured")]
-        public async Task<ActionResult<ServiceResponse<List<Product>>>> GetFeaturedProducts()
+        public async Task<ActionResult<ServiceResponse<List<Products>>>> GetFeaturedProducts()
         {
             var result = await _productService.GetFeaturedProducts();
             return Ok(result);

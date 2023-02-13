@@ -20,7 +20,7 @@ namespace BlazorEcommerce.Server.Controllers
         public async Task<ActionResult<ServiceResponse<int>>> Register(UserRegister request)
         {
             var response = await _authService.Register(
-                new User
+                new Users
                 {
                     Email = request.Email
                 },

@@ -2,12 +2,12 @@
 {
     public interface ICartService
     {
-        Task<ServiceResponse<List<CartProductResponse>>> GetCartProducts(List<CartItem> cartItems);
-        Task<ServiceResponse<List<CartProductResponse>>> StoreCartItems(List<CartItem> cartItems);
+        Task<ServiceResponse<List<CartProductResponse>>> GetCartProducts(List<CartItems> cartItems);
+        Task<ServiceResponse<List<CartProductResponse>>> StoreCartItems(List<CartItems> cartItems);
         Task<ServiceResponse<int>> GetCartItemsCount();
         Task<ServiceResponse<List<CartProductResponse>>> GetDbCartProducts(int? userId = null);
-        Task<ServiceResponse<bool>> AddToCart(CartItem cartItem);
-        Task<ServiceResponse<bool>> UpdateQuantity(CartItem cartItem);
+        Task<ServiceResponse<bool>> AddToCart(CartItems cartItem);
+        Task<ServiceResponse<bool>> UpdateQuantity(CartItems cartItem);
         Task<ServiceResponse<bool>> RemoveItemFromCart(int productId, int productTypeId);
     }
 }

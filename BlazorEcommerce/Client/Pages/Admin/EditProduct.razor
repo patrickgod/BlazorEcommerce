@@ -136,7 +136,7 @@ else
     [Parameter]
     public int Id { get; set; }
 
-    Product product = new Product();
+    BlazorEcommerce.Shared.Products product = new BlazorEcommerce.Shared.Products();
     bool loading = true;
     string btnText = "";
     string msg = "Loading...";
@@ -151,12 +151,12 @@ else
     {
         if (Id == 0)
         {
-            product = new Product { IsNew = true };
+            product = new BlazorEcommerce.Shared.Products { IsNew = true };
             btnText = "Create Product";
         }
         else
         {
-            Product dbProduct = (await ProductService.GetProduct(Id)).Data;
+           BlazorEcommerce.Shared.Products dbProduct = (await ProductService.GetProduct(Id)).Data;
             if (dbProduct == null)
             {
                 msg = $"Product with Id '{Id}' does not exist!";
@@ -189,7 +189,7 @@ else
     void AddVariant()
     {
         product.Variants
-            .Add(new ProductVariant { IsNew = true, ProductId = product.Id });
+            .Add(new ProductVariants { IsNew = true, ProductId = product.Id });
     }
 
     async void AddOrUpdateProduct()
@@ -227,7 +227,7 @@ else
             var buffer = new byte[resizedImage.Size];
             await resizedImage.OpenReadStream().ReadAsync(buffer);
             var imageData = $"data:{format};base64,{Convert.ToBase64String(buffer)}";
-            product.Images.Add(new Image { Data = imageData });
+            product.Images.Add(new Images { Data = imageData });
         }
     }
 

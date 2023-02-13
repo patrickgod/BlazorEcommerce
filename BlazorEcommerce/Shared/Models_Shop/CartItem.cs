@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BlazorEcommerce.Shared
 {
-    public class CartItem
+    public class CartItems
     {
         public int UserId { get; set; }
         public int ProductId { get; set; }

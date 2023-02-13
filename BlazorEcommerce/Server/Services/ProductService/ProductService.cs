@@ -1,4 +1,6 @@
-﻿namespace BlazorEcommerce.Server.Services.ProductService
+﻿using BlazorEcommerce.Shared;
+
+namespace BlazorEcommerce.Server.Services.ProductService
 {
     public class ProductService : IProductService
     {
@@ -11,7 +13,7 @@
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<ServiceResponse<Product>> CreateProduct(Product product)
+        public async Task<ServiceResponse<Products>> CreateProduct(Products product)
         {
             foreach (var variant in product.Variants)
             {
@@ -19,7 +21,7 @@
             }
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
-            return new ServiceResponse<Product> { Data = product };
+            return new ServiceResponse<Products> { Data = product };
         }
 
         public async Task<ServiceResponse<bool>> DeleteProduct(int productId)
@@ -31,7 +33,7 @@
                 {
                     Success = false,
                     Data = false,
-                    Message = "Product not found."
+                    Message = "Products not found."
                 };
             }
 
@@ -41,9 +43,9 @@
             return new ServiceResponse<bool> { Data = true };
         }
 
-        public async Task<ServiceResponse<List<Product>>> GetAdminProducts()
+        public async Task<ServiceResponse<List<Products>>> GetAdminProducts()
         {
-            var response = new ServiceResponse<List<Product>>
+            var response = new ServiceResponse<List<Products>>
             {
                 Data = await _context.Products
                     .Where(p => !p.Deleted)
@@ -56,24 +58,35 @@
             return response;
         }
 
-        public async Task<ServiceResponse<List<Product>>> GetFeaturedProducts()
+        public async Task<ServiceResponse<List<Products>>> GetFeaturedProducts()
         {
-            var response = new ServiceResponse<List<Product>>
+            try
             {
-                Data = await _context.Products
+                var response = new ServiceResponse<List<Products>>
+                {
+                    Data = await _context.Products
                     .Where(p => p.Featured && p.Visible && !p.Deleted)
                     .Include(p => p.Variants.Where(v => v.Visible && !v.Deleted))
                     .Include(p => p.Images)
                     .ToListAsync()
-            };
+                };
 
-            return response;
+                return response;
+
+            }
+            catch (Exception exp)
+            {
+
+                throw;
+            }
+            
+            
         }
 
-        public async Task<ServiceResponse<Product>> GetProductAsync(int productId)
+        public async Task<ServiceResponse<Products>> GetProductAsync(int productId)
         {
-            var response = new ServiceResponse<Product>();
-            Product product = null;
+            var response = new ServiceResponse<Products>();
+            Products product = null;
 
             if (_httpContextAccessor.HttpContext.User.IsInRole("Admin"))
             {
@@ -105,9 +118,9 @@
             return response;
         }
 
-        public async Task<ServiceResponse<List<Product>>> GetProductsAsync()
+        public async Task<ServiceResponse<List<Products>>> GetProductsAsync()
         {
-            var response = new ServiceResponse<List<Product>>
+            var response = new ServiceResponse<List<Products>>
             {
                 Data = await _context.Products
                     .Where(p => p.Visible && !p.Deleted)
@@ -119,9 +132,9 @@
             return response;
         }
 
-        public async Task<ServiceResponse<List<Product>>> GetProductsByCategory(string categoryUrl)
+        public async Task<ServiceResponse<List<Products>>> GetProductsByCategory(string categoryUrl)
         {
-            var response = new ServiceResponse<List<Product>>
+            var response = new ServiceResponse<List<Products>>
             {
                 Data = await _context.Products
                     .Where(p => p.Category.Url.ToLower().Equals(categoryUrl.ToLower()) &&
@@ -195,7 +208,7 @@
             return response;
         }
 
-        public async Task<ServiceResponse<Product>> UpdateProduct(Product product)
+        public async Task<ServiceResponse<Products>> UpdateProduct(Products product)
         {
             var dbProduct = await _context.Products
                 .Include(p => p.Images)
@@ -203,10 +216,10 @@
 
             if (dbProduct == null)
             {
-                return new ServiceResponse<Product>
+                return new ServiceResponse<Products>
                 {
                     Success = false,
-                    Message = "Product not found."
+                    Message = "Products not found."
                 };
             }
 
@@ -243,10 +256,10 @@
             }
 
             await _context.SaveChangesAsync();
-            return new ServiceResponse<Product> { Data = product };
+            return new ServiceResponse<Products> { Data = product };
         }
 
-        private async Task<List<Product>> FindProductsBySearchText(string searchText)
+        private async Task<List<Products>> FindProductsBySearchText(string searchText)
         {
             return await _context.Products
                                 .Where(p => p.Title.ToLower().Contains(searchText.ToLower()) ||

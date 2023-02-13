@@ -9,7 +9,7 @@
             _context = context;
         }
 
-        public async Task<ServiceResponse<List<ProductType>>> AddProductType(ProductType productType)
+        public async Task<ServiceResponse<List<ProductTypes>>> AddProductType(ProductTypes productType)
         {
             productType.Editing = productType.IsNew = false;
             _context.ProductTypes.Add(productType);
@@ -18,18 +18,18 @@
             return await GetProductTypes();
         }
 
-        public async Task<ServiceResponse<List<ProductType>>> GetProductTypes()
+        public async Task<ServiceResponse<List<ProductTypes>>> GetProductTypes()
         {
             var productTypes = await _context.ProductTypes.ToListAsync();
-            return new ServiceResponse<List<ProductType>> { Data = productTypes };
+            return new ServiceResponse<List<ProductTypes>> { Data = productTypes };
         }
 
-        public async Task<ServiceResponse<List<ProductType>>> UpdateProductType(ProductType productType)
+        public async Task<ServiceResponse<List<ProductTypes>>> UpdateProductType(ProductTypes productType)
         {
             var dbProductType = await _context.ProductTypes.FindAsync(productType.Id);
             if (dbProductType == null)
             {
-                return new ServiceResponse<List<ProductType>>
+                return new ServiceResponse<List<ProductTypes>>
                 {
                     Success = false,
                     Message = "Product Type not found."

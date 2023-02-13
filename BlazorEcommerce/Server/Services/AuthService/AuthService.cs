@@ -47,7 +47,7 @@ namespace BlazorEcommerce.Server.Services.AuthService
             return response;
         }
 
-        public async Task<ServiceResponse<int>> Register(User user, string password)
+        public async Task<ServiceResponse<int>> Register(Users user, string password)
         {
             if (await UserExists(user.Email))
             {
@@ -99,7 +99,7 @@ namespace BlazorEcommerce.Server.Services.AuthService
             }
         }
 
-        private string CreateToken(User user)
+        private string CreateToken(Users user)
         {
             List<Claim> claims = new List<Claim>
             {
@@ -145,7 +145,7 @@ namespace BlazorEcommerce.Server.Services.AuthService
             return new ServiceResponse<bool> { Data = true, Message = "Password has been changed." };
         }
 
-        public async Task<User> GetUserByEmail(string email)
+        public async Task<Users> GetUserByEmail(string email)
         {
             return await _context.Users.FirstOrDefaultAsync(u => u.Email.Equals(email));
         }

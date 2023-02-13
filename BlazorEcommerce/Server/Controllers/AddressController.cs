@@ -17,13 +17,13 @@ namespace BlazorEcommerce.Server.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<ServiceResponse<Address>>> GetAddress()
+        public async Task<ActionResult<ServiceResponse<Addresses>>> GetAddress()
         {
             return await _addressService.GetAddress();
         }
 
         [HttpPost]
-        public async Task<ActionResult<ServiceResponse<Address>>> AddOrUpdateAddress(Address address)
+        public async Task<ActionResult<ServiceResponse<Addresses>>> AddOrUpdateAddress(Addresses address)
         {
             return await _addressService.AddOrUpdateAddress(address);
         }

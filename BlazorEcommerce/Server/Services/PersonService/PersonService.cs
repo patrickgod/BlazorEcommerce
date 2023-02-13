@@ -6,11 +6,11 @@ namespace BlazorEcommerce.Server.Services.ProductService
 {
     public class PersonService : IPersonService
     {
-        private readonly GGACADEMYContext _context;
+        private readonly DataContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMapper _mapper;
 
-        public PersonService(GGACADEMYContext context, IHttpContextAccessor httpContextAccessor,IMapper mapper)
+        public PersonService(DataContext context, IHttpContextAccessor httpContextAccessor,IMapper mapper)
         {
             _context = context;
             _httpContextAccessor = httpContextAccessor;

@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace BlazorEcommerce.Shared
 {
-    public class Category
+    public class Categories
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
@@ -18,5 +19,9 @@ namespace BlazorEcommerce.Shared
         public bool Editing { get; set; } = false;
         [NotMapped]
         public bool IsNew { get; set; } = false;
+
+        [JsonIgnore]
+        [NotMapped]
+        public List<Products> Products { get; set; }
     }
 }

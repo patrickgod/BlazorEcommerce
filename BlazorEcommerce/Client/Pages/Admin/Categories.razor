@@ -66,7 +66,7 @@
 </button>
 
 @code {
-    Category editingCategory = null;
+    BlazorEcommerce.Shared.Categories editingCategory = null;
 
     protected override async Task OnInitializedAsync()
     {
@@ -84,7 +84,7 @@
         editingCategory = CategoryService.CreateNewCategory();
     }
 
-    private void EditCategory(Category category)
+    private void EditCategory(BlazorEcommerce.Shared.Categories category)
     {
         category.Editing = true;
         editingCategory = category;
@@ -96,12 +96,12 @@
             await CategoryService.AddCategory(editingCategory);
         else
             await CategoryService.UpdateCategory(editingCategory);
-        editingCategory = new Category();
+        editingCategory = new BlazorEcommerce.Shared.Categories();
     }
 
     private async Task CancelEditing()
     {
-        editingCategory = new Category();
+        editingCategory = new BlazorEcommerce.Shared.Categories();
         await CategoryService.GetAdminCategories();
     }
 

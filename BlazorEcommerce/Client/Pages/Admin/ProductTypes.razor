@@ -41,7 +41,7 @@
 </button>
 
 @code {
-    ProductType editingProductType = null;
+    BlazorEcommerce.Shared.ProductTypes editingProductType = null;
 
     protected override async Task OnInitializedAsync()
     {
@@ -54,7 +54,7 @@
         ProductTypeService.OnChange -= StateHasChanged;
     }
 
-    private void EditProductType(ProductType productType)
+    private void EditProductType(BlazorEcommerce.Shared.ProductTypes productType)
     {
         productType.Editing = true;
         editingProductType = productType;
@@ -71,6 +71,6 @@
             await ProductTypeService.AddProductType(editingProductType);
         else
             await ProductTypeService.UpdateProductType(editingProductType);
-        editingProductType = new ProductType();
+        editingProductType = new BlazorEcommerce.Shared.ProductTypes();
     }
 }
