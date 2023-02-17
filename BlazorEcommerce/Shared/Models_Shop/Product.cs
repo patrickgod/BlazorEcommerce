@@ -36,6 +36,8 @@ namespace BlazorEcommerce.Shared
         [NotMapped]
         public List<OrderItems> OrderItems { get; set; } = new List<OrderItems>();
 
+     
+
 
     }
 }

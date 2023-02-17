@@ -40,7 +40,7 @@ namespace BlazorEcommerce.Server.Controllers
             return Ok(result);
         }
 
-        [HttpGet("GetPersonList")]
+        [HttpGet]
         public async Task<ActionResult<ServiceResponse<List<PersonDto>>>> GetPersonList()
         {
             var result = await _personService.GetPersonListAsync();

@@ -21,7 +21,7 @@ namespace BlazorEcommerce.Shared
 
         [JsonIgnore]
         [NotMapped]
-        public Products Products { get; set; } = new Products();
+        public virtual Products Product { get; set; } = new Products();
 
         
     }

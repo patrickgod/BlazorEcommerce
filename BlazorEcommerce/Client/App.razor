@@ -3,8 +3,10 @@
         <Found Context="routeData">
             <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(ShopLayout)">
                 <NotAuthorized>
-                    <h3>Whoops! You're not allowed to see this page.</h3>
-                    <h5>Please <a href="login">login</a> or <a href="register">register</a> for a new account.</h5>
+                    <h3>Bu sayfayı görmek için yetkiniz bulunmamaktadır! </h3>
+                    <h5> <a href="login">Buradan sisteme giriş yapınız</a> 
+                        @*or <a href="register">register</a> for a new account.*@
+                        </h5>
                 </NotAuthorized>
             </AuthorizeRouteView>
             <FocusOnNavigate RouteData="@routeData" Selector="h1" />

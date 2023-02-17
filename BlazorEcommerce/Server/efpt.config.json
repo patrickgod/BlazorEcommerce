@@ -15,10 +15,6 @@
    "SelectedToBeGenerated": 0,
    "Tables": [
       {
-         "Name": "[dbo].[Addresses]",
-         "ObjectType": 0
-      },
-      {
          "Name": "[dbo].[CartItems]",
          "ObjectType": 0
       },

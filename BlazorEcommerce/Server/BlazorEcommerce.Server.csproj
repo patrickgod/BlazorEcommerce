@@ -26,9 +26,5 @@
     <ProjectReference Include="..\Shared\BlazorEcommerce.Shared.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Delete\" />
-  </ItemGroup>
-
 
 </Project>

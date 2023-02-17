@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
-//using BlazorEcommerce.Server.Delete;
+
 
 namespace BlazorEcommerce.Server.Data
 {
@@ -19,7 +19,6 @@ namespace BlazorEcommerce.Server.Data
         {
         }
 
-        public virtual DbSet<Addresses> Addresses { get; set; }
         public virtual DbSet<CartItems> CartItems { get; set; }
         public virtual DbSet<Categories> Categories { get; set; }
         public virtual DbSet<Class> Class { get; set; }
@@ -36,30 +35,6 @@ namespace BlazorEcommerce.Server.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Addresses>(entity =>
-            {
-                entity.HasIndex(e => e.UserId, "IX_Addresses_UserId")
-                    .IsUnique();
-
-                entity.Property(e => e.City).IsRequired();
-
-                entity.Property(e => e.Country).IsRequired();
-
-                entity.Property(e => e.FirstName).IsRequired();
-
-                entity.Property(e => e.LastName).IsRequired();
-
-                entity.Property(e => e.State).IsRequired();
-
-                entity.Property(e => e.Street).IsRequired();
-
-                entity.Property(e => e.Zip).IsRequired();
-
-                entity.HasOne(d => d.User)
-                    .WithOne(p => p.Addresses)
-                    .HasForeignKey<Addresses>(d => d.UserId);
-            });
-
             modelBuilder.Entity<CartItems>(entity =>
             {
                 entity.HasKey(e => new { e.UserId, e.ProductId, e.ProductTypeId });
@@ -141,7 +116,7 @@ namespace BlazorEcommerce.Server.Data
 
                 entity.Property(e => e.Data).IsRequired();
 
-                entity.HasOne(d => d.Products)
+                entity.HasOne(d => d.Product)
                     .WithMany(p => p.Images)
                     .HasForeignKey(d => d.ProductId);
             });
@@ -228,9 +203,7 @@ namespace BlazorEcommerce.Server.Data
 
             modelBuilder.Entity<ProductVariants>(entity =>
             {
-                entity.HasKey(e => new { e.ProductId, e.ProductTypeId });
-
-                entity.HasIndex(e => e.ProductTypeId, "IX_ProductVariants_ProductTypeId");
+                entity.Property(e => e.Id).ValueGeneratedNever();
 
                 entity.Property(e => e.Deleted)
                     .IsRequired()
@@ -240,17 +213,23 @@ namespace BlazorEcommerce.Server.Data
 
                 entity.Property(e => e.Price).HasColumnType("decimal(18, 2)");
 
+                entity.Property(e => e.ProductTypeId).ValueGeneratedOnAdd();
+
                 entity.Property(e => e.Visible)
                     .IsRequired()
                     .HasDefaultValueSql("(CONVERT([bit],(0)))");
 
                 entity.HasOne(d => d.Product)
-                    .WithMany(p => p.ProductVariants)
-                    .HasForeignKey(d => d.ProductId);
+                   .WithMany(p => p.ProductVariants)
+                   .HasForeignKey(d => d.ProductId)
+                   .OnDelete(DeleteBehavior.ClientSetNull)
+                   .HasConstraintName("FK_ProductVariants_Products");
 
                 entity.HasOne(d => d.ProductType)
                     .WithMany(p => p.ProductVariants)
-                    .HasForeignKey(d => d.ProductTypeId);
+                    .HasForeignKey(d => d.ProductTypeId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_ProductVariants_Products1");
             });
 
             modelBuilder.Entity<Products>(entity =>

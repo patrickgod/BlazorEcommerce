@@ -10,12 +10,11 @@ namespace BlazorEcommerce.Shared
 {
     public class ProductVariants
     {
+        
+        public int Id { get; set; }
 
-
-        [ForeignKey("ProductId")]
         public int ProductId { get; set; }
 
-        [ForeignKey("ProductTypeId")]
         public int ProductTypeId { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
@@ -41,6 +40,13 @@ namespace BlazorEcommerce.Shared
         [JsonIgnore]
         [NotMapped]
         public ProductTypes? ProductType { get; set; }
+
+
+        //[ForeignKey("ProductId")]
+        //public virtual Products Products { get; set; }
+
+        //[ForeignKey("ProductTypeId")]
+        //public virtual ProductTypes ProductTypes { get; set; }
 
 
     }

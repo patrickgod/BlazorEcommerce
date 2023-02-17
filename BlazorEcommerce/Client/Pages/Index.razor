@@ -2,12 +2,15 @@
 @page "/search/{searchText}/{page:int}"
 @page "/{categoryUrl}"
 @inject IProductService ProductService
+@inject IPersonService PersonService
 
 <PageTitle>My Shop</PageTitle>
 
 @if (SearchText == null && CategoryUrl == null)
 {
-    <FeaturedProducts />
+    @*<FeaturedProducts />*@
+    <PersonList/>
+    
 }
 else
 {
@@ -26,13 +29,15 @@ else
 
     protected override async Task OnParametersSetAsync()
     {
-        if (SearchText != null)
-        {
-            await ProductService.SearchProducts(SearchText, Page);
-        }
-        else
-        {
-            await ProductService.GetProducts(CategoryUrl);
-        }
+        await PersonService.GetPersonList();
+
+        //if (SearchText != null)
+        //{
+        //    await ProductService.SearchProducts(SearchText, Page);
+        //}
+        //else
+        //{
+        //    await ProductService.GetProducts(CategoryUrl);
+        //}
     }
 }

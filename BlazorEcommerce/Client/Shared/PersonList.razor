@@ -1,0 +1,45 @@
+﻿@inject IPersonService PersonService;
+@implements IDisposable
+
+<h3>Students</h3>
+
+
+<table>
+    <tr>
+        <thead>Ad Soyad</thead>
+        <thead>Telefon</thead>
+        <thead>Yetişkin</thead>
+        <thead>Velisi</thead>
+    </tr>
+
+    @foreach (var person in PersonService.Person)
+    {
+        <tr>
+            <td>@person.FullName</td>
+            <td>@person.Phone</td>
+            <td>@person.Ismature</td>
+            <td>@person.Parentname</td>
+        </tr>
+    }
+
+    
+</table>
+
+@code {
+
+    protected override void OnInitialized()
+    {
+        PersonService.PersonChanged += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        PersonService.PersonChanged -= StateHasChanged;
+    }
+
+    //protected override async Task OnParametersSetAsync()
+    //{
+    //    await PersonService.GetPersonList();
+
+    //}
+}

@@ -66,7 +66,7 @@ namespace BlazorEcommerce.Server.Services.ProductService
                 {
                     Data = await _context.Products
                     .Where(p => p.Featured && p.Visible && !p.Deleted)
-                    .Include(p => p.Variants.Where(v => v.Visible && !v.Deleted))
+                    //.Include(p => p.Variants.Where(v => v.Visible && !v.Deleted))
                     .Include(p => p.Images)
                     .ToListAsync()
                 };
@@ -91,16 +91,16 @@ namespace BlazorEcommerce.Server.Services.ProductService
             if (_httpContextAccessor.HttpContext.User.IsInRole("Admin"))
             {
                 product = await _context.Products
-                    .Include(p => p.Variants.Where(v => !v.Deleted))
-                    .ThenInclude(v => v.ProductType)
+                    //.Include(p => p.Variants.Where(v => !v.Deleted))
+                    //.ThenInclude(v => v.ProductType)
                     .Include(p => p.Images)
                     .FirstOrDefaultAsync(p => p.Id == productId && !p.Deleted);
             }
             else
             {
                 product = await _context.Products
-                    .Include(p => p.Variants.Where(v => v.Visible && !v.Deleted))
-                    .ThenInclude(v => v.ProductType)
+                    //.Include(p => p.Variants.Where(v => v.Visible && !v.Deleted))
+                    //.ThenInclude(v => v.ProductType)
                     .Include(p => p.Images)
                     .FirstOrDefaultAsync(p => p.Id == productId && !p.Deleted && p.Visible);
             }
@@ -139,7 +139,7 @@ namespace BlazorEcommerce.Server.Services.ProductService
                 Data = await _context.Products
                     .Where(p => p.Category.Url.ToLower().Equals(categoryUrl.ToLower()) &&
                         p.Visible && !p.Deleted)
-                    .Include(p => p.Variants.Where(v => v.Visible && !v.Deleted))
+                    //.Include(p => p.Variants.Where(v => v.Visible && !v.Deleted))
                     .Include(p => p.Images)
                     .ToListAsync()
             };
