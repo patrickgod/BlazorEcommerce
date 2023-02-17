@@ -7,13 +7,15 @@ namespace BlazorEcommerce.Server.Data
 {
     public partial class Class
     {
+        public Class()
+        {
+            Person = new HashSet<Person>();
+        }
+
         public Guid Classid { get; set; }
-        public Guid? Personid { get; set; }
         public string Classname { get; set; }
         public string Note { get; set; }
 
-        //public virtual Person Person { get; set; }
         public virtual ICollection<Person> Person { get; set; }
-
     }
 }

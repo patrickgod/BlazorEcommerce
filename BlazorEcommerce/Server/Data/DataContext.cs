@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 
+
 namespace BlazorEcommerce.Server.Data
 {
     public partial class DataContext : DbContext
