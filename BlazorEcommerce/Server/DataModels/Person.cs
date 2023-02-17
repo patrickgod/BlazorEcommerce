@@ -9,11 +9,11 @@ namespace BlazorEcommerce.Server.Data
     {
         public Person()
         {
-            Class = new HashSet<Class>();
             Finance = new HashSet<Finance>();
         }
 
         public Guid Personid { get; set; }
+        public Guid? Classid { get; set; }
         public string Fullname { get; set; }
         public string Note { get; set; }
         public string Phone { get; set; }
@@ -21,7 +21,7 @@ namespace BlazorEcommerce.Server.Data
         public string Parentname { get; set; }
         public bool Deleted { get; set; }
 
-        public virtual ICollection<Class> Class { get; set; }
+        public virtual Class Class { get; set; }
         public virtual ICollection<Finance> Finance { get; set; }
     }
 }

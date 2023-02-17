@@ -12,6 +12,8 @@ namespace BlazorEcommerce.Server.Data
         public string Classname { get; set; }
         public string Note { get; set; }
 
-        public virtual Person Person { get; set; }
+        //public virtual Person Person { get; set; }
+        public virtual ICollection<Person> Person { get; set; }
+
     }
 }

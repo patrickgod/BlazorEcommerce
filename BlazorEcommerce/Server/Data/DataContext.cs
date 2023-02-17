@@ -60,19 +60,12 @@ namespace BlazorEcommerce.Server.Data
                 entity.ToTable("CLASS");
 
                 entity.Property(e => e.Classid)
-                    .ValueGeneratedNever()
-                    .HasColumnName("CLASSID");
+                    .HasColumnName("CLASSID")
+                    .HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.Classname).HasColumnName("CLASSNAME");
 
                 entity.Property(e => e.Note).HasColumnName("NOTE");
-
-                entity.Property(e => e.Personid).HasColumnName("PERSONID");
-
-                entity.HasOne(d => d.Person)
-                    .WithMany(p => p.Class)
-                    .HasForeignKey(d => d.Personid)
-                    .HasConstraintName("FK_CLASS_PERSON");
             });
 
             modelBuilder.Entity<Finance>(entity =>
@@ -80,8 +73,8 @@ namespace BlazorEcommerce.Server.Data
                 entity.ToTable("FINANCE");
 
                 entity.Property(e => e.Financeid)
-                    .ValueGeneratedNever()
-                    .HasColumnName("FINANCEID");
+                    .HasColumnName("FINANCEID")
+                    .HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.Ispaid).HasColumnName("ISPAID");
 
@@ -128,8 +121,8 @@ namespace BlazorEcommerce.Server.Data
                 entity.ToTable("MONTHS");
 
                 entity.Property(e => e.Monthid)
-                    .ValueGeneratedNever()
-                    .HasColumnName("MONTHID");
+                    .HasColumnName("MONTHID")
+                    .HasDefaultValueSql("(newid())");
 
                 entity.Property(e => e.Monthname)
                     .HasMaxLength(50)
@@ -169,16 +162,16 @@ namespace BlazorEcommerce.Server.Data
                 entity.ToTable("PERSON");
 
                 entity.Property(e => e.Personid)
-                    .ValueGeneratedNever()
-                    .HasColumnName("PERSONID");
+                    .HasColumnName("PERSONID")
+                    .HasDefaultValueSql("(newid())");
+
+                entity.Property(e => e.Classid).HasColumnName("CLASSID");
 
                 entity.Property(e => e.Deleted).HasColumnName("DELETED");
 
                 entity.Property(e => e.Fullname)
                     .IsRequired()
-                    .HasMaxLength(10)
-                    .HasColumnName("FULLNAME")
-                    .IsFixedLength();
+                    .HasColumnName("FULLNAME");
 
                 entity.Property(e => e.Ismature).HasColumnName("ISMATURE");
 
@@ -194,6 +187,11 @@ namespace BlazorEcommerce.Server.Data
                     .IsRequired()
                     .HasMaxLength(255)
                     .HasColumnName("PHONE");
+
+                entity.HasOne(d => d.Class)
+                    .WithMany(p => p.Person)
+                    .HasForeignKey(d => d.Classid)
+                    .HasConstraintName("FK_PERSON_CLASS");
             });
 
             modelBuilder.Entity<ProductTypes>(entity =>
@@ -220,10 +218,10 @@ namespace BlazorEcommerce.Server.Data
                     .HasDefaultValueSql("(CONVERT([bit],(0)))");
 
                 entity.HasOne(d => d.Product)
-                   .WithMany(p => p.ProductVariants)
-                   .HasForeignKey(d => d.ProductId)
-                   .OnDelete(DeleteBehavior.ClientSetNull)
-                   .HasConstraintName("FK_ProductVariants_Products");
+                    .WithMany(p => p.ProductVariants)
+                    .HasForeignKey(d => d.ProductId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_ProductVariants_Products");
 
                 entity.HasOne(d => d.ProductType)
                     .WithMany(p => p.ProductVariants)

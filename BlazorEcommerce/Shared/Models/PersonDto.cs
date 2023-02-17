@@ -13,6 +13,10 @@ namespace BlazorEcommerce.Shared.Models
 
         [Required]
         public string FullName { get; set; }
+
+        public string ClassName { get; set; }
+
+        public Guid ClassId { get; set; }
         public string Note { get; set; }
 
         [Required]
