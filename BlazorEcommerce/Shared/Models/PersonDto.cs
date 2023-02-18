@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BlazorEcommerce.Shared.Models
 {
@@ -14,9 +15,12 @@ namespace BlazorEcommerce.Shared.Models
         [Required]
         public string FullName { get; set; }
 
+        [NotMapped]
         public string ClassName { get; set; }
 
-        public Guid ClassId { get; set; }
+        
+        public Guid? ClassId { get; set; }
+        
         public string Note { get; set; }
 
         [Required]

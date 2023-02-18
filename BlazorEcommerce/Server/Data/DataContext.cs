@@ -5,8 +5,6 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-
-
 namespace BlazorEcommerce.Server.Data
 {
     public partial class DataContext : DbContext

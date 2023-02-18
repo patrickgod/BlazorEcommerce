@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using System.Net.Http.Headers;
 using System.Security.Claims;
+using System.Security.Principal;
 using System.Text.Json;
 
 namespace BlazorEcommerce.Client
@@ -15,6 +16,12 @@ namespace BlazorEcommerce.Client
         {
             _localStorageService = localStorageService;
             _http = http;
+        }
+
+        public async Task<bool> IsAuthenticated() {
+
+            var identity = await GetAuthenticationStateAsync();
+            return identity.User?.Identity?.IsAuthenticated ?? false;
         }
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()

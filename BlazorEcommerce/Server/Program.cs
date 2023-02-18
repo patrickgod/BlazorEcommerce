@@ -20,6 +20,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("MTE0NzE2NUAzMjMwMmUzNDJlMzBNRE1HZkF2bFVzSGRFZTY2aVRSM01ES3VQN1c2anFkeE12aFJKZE5KV3VrPQ==");
+
 builder.Services.AddDbContext<DataContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));

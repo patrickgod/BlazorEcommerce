@@ -7,7 +7,9 @@ namespace BlazorEcommerce.Server.Mapper
     {
         public MappingProfile()
         {
-            CreateMap<Person, PersonDto>().ReverseMap();
+            CreateMap<Person, PersonDto>()
+            .ForMember(t => t.ClassName, opt => opt.MapFrom(src => src.Class.Classname))
+            .ReverseMap();
         }
     }
 }

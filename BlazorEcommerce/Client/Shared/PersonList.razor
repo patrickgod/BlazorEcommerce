@@ -1,35 +1,103 @@
-﻿@inject IPersonService PersonService;
+﻿@using Syncfusion.Blazor
+@using Syncfusion.Blazor.Grids;
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Buttons;
+@using Syncfusion.Blazor.Spinner
+@using Syncfusion.Blazor.Popups;
+
+@using BlazorEcommerce.Shared.Models;
+
+@inject IPersonService PersonService;
 @implements IDisposable
+@attribute [Authorize];
+@inject CustomAuthStateProvider AuthStateProvider;
+@inject NavigationManager NavigationManager
 
-<h3>Students</h3>
 
 
-<table>
-    <tr>
-        <thead>Ad Soyad</thead>
-        <thead>Telefon</thead>
-        <thead>Yetişkin</thead>
-        <thead>Velisi</thead>
-    </tr>
+<h3><span class="e-icons e-user">Öğrenci Listesi</span> </h3>
 
-    @foreach (var person in PersonService.Person)
+@*<SfMediaQuery @bind-ActiveBreakPoint="activeBreakpoint"/>
+ @if (activeBreakpoint == "Small")
     {
-        <tr>
-            <td>@person.FullName</td>
-            <td>@person.Phone</td>
-            <td>@person.Ismature</td>
-            <td>@person.Parentname</td>
-        </tr>
+        rowDirection = RowDirection.Vertical;
     }
+    else
+    {
+        rowDirection = RowDirection.Horizontal;
+    }
+*@
 
-    
-</table>
+<SfGrid @ref="Grid" DataSource="@PersonService.Person" EnableAdaptiveUI="true" AdaptiveUIMode="AdaptiveMode.Both" Width="%80" Height="%90"
+        AllowPaging="true" AllowFiltering="true" AllowSorting=" true" Toolbar="@(new List<string>() { "Add", "Edit", "Delete", "Cancel", "Update", "Search" })">>
+    <GridFilterSettings Type="@Syncfusion.Blazor.Grids.FilterType.Excel" ShowFilterBarStatus="false" Operators="Operator.Contains" Mode="FilterBarMode.Immediate" ImmediateModeDelay="500">
+    </GridFilterSettings>
+    <GridSortSettings>
+        <GridSortColumns>
+            <GridSortColumn Field="FullName" Direction="Syncfusion.Blazor.Grids.SortDirection.Ascending"></GridSortColumn>
+        </GridSortColumns>
+    </GridSortSettings>
+    <GridPageSettings PageSize="25"></GridPageSettings>
+    <GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Dialog" />
+    <GridEvents OnActionBegin="ActionBeginHandler" OnActionComplete="ActionCompleteHandler" TValue="PersonDto"></GridEvents>
+
+    <GridColumns>
+        <GridColumn Field=@nameof(PersonDto.FullName) HeaderText="İsim Soyisim" Width="120px" FilterSettings="@(new FilterSettings{ Operator = Operator.Contains })"></GridColumn>
+        <GridColumn Field=@nameof(PersonDto.ClassName) MinWidth="10px" Width="120px" MaxWidth="150px" HeaderText=" Sınıfı"></GridColumn>
+        <GridColumn Field=@nameof(PersonDto.Phone) HeaderText="Telefon" Width="100px"></GridColumn>
+        <GridColumn Field=@nameof(PersonDto.Ismature) DisplayAsCheckBox="true" MinWidth="10px" Width="80" MaxWidth="80" HeaderText="Yetişkin?" >
+            <HeaderTemplate>
+                @{
+                    <SfTooltip>
+                        <TooltipTemplates>
+                            <Content>
+                                Yetişkin mi?
+                            </Content>
+                        </TooltipTemplates>
+                        <span style="font-weight:bold;font-size:14px">Yetişkin mi?</span>
+                    </SfTooltip>
+                }
+            </HeaderTemplate>
+            <FilterTemplate> <Syncfusion.Blazor.Buttons.SfCheckBox TChecked="bool" ValueChange="ValueChange"></Syncfusion.Blazor.Buttons.SfCheckBox>  </FilterTemplate>
+           <Template>
+                @{
+                    var value = (context as PersonDto);
+                    var result = (value.Ismature.HasValue && value.Ismature.Value) ? "Evet" : "Hayır";
+                    <div style="display:flex;justify-content:start;align-items:center">
+
+                       
+                            @if (result == "Evet")
+                            {
+                                <span style="font-size:18px;color:black" class="e-icons e-people"></span>
+                            }
+                            else
+                            {
+                            <span style="font-size:18px;color:black" class="e-icons e-user"></span>
+                            }
+                        <span id="Emptext">@result</span>
+                       
+                    </div>
+                    
+                }
+            </Template>
+            
+        </GridColumn>
+        <GridColumn Field=@nameof(PersonDto.Parentname) HeaderText="Velisi" Width="150px"></GridColumn>
+    </GridColumns>
+</SfGrid>
+
 
 @code {
+    SfGrid<PersonDto> Grid;
 
-    protected override void OnInitialized()
+    bool authorized = false;
+    private string? activeBreakpoint { get; set; }
+    private RowDirection rowDirection { get; set; }
+    protected override async void OnInitialized()
     {
         PersonService.PersonChanged += StateHasChanged;
+
+
     }
 
     public void Dispose()
@@ -37,9 +105,113 @@
         PersonService.PersonChanged -= StateHasChanged;
     }
 
-    //protected override async Task OnParametersSetAsync()
-    //{
-    //    await PersonService.GetPersonList();
+    public void ValueChange(Syncfusion.Blazor.Buttons.ChangeEventArgs<bool> args)
+    {
+        Grid.FilterByColumnAsync("Ismature", "equal", args.Checked);
+    }
 
-    //}
+    protected override async Task OnParametersSetAsync()
+    {
+
+
+        var authState = await AuthStateProvider.IsAuthenticated();
+        if (authState)
+        {
+            authorized = true;
+            GetData();
+        }
+        else
+            NavigationManager.NavigateTo("/login");
+    }
+
+    public async Task GetData()
+    {
+        await PersonService.GetPersonList();
+    }
+
+    public void ActionBegin(ActionEventArgs<PersonDto> args)
+    {   if (args.RequestType == Syncfusion.Blazor.Grids.Action.BeginEdit)
+        {
+            // Triggers before editing operation starts
+        }
+        else if (args.RequestType == Syncfusion.Blazor.Grids.Action.Add)
+        {
+            // Triggers before add operation starts
+        }
+        else if (args.RequestType == Syncfusion.Blazor.Grids.Action.Cancel)
+        {
+            // Triggers before cancel operation starts
+        }
+        else if (args.RequestType == Syncfusion.Blazor.Grids.Action.Save)
+        {
+            // Triggers before save operation starts
+        }
+        else if (args.RequestType == Syncfusion.Blazor.Grids.Action.Delete)
+        {
+            // Triggers before delete operation starts
+        }
+    }
+
+
+    public async Task ActionBeginHandler(ActionEventArgs<PersonDto> args)
+    {
+
+        if (args.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Save))
+        {
+            if (args.Action == "Add")
+            {
+                //args.Cancel = true;
+                await PersonService.CreatePerson(args.Data);
+                await Grid.CloseEditAsync();
+            }
+            else
+            {
+                await PersonService.UpdateProduct(args.Data);
+                await Grid.CloseEditAsync();
+                //LibraryService.UpdateBook(Args.Data.Id, Args.Data);
+            }
+            await GetData();
+        }
+        if (args.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Delete))
+        {
+            //args.Cancel = true;
+            await PersonService.DeleteProduct(args.Data);
+            await Grid.CloseEditAsync();
+            await GetData();
+        }
+        
+    }
+
+    public void ActionCompleteHandler(ActionEventArgs<PersonDto> Args)
+    {
+        if (Args.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Save))
+        {
+            GetData(); //to fetch the updated data from db to Grid
+        }
+    }
+
+
+
 }
+
+<style>
+/*    .e-grid .e-pagerexternalmsg {
+        display: none;
+    }
+
+    .e-grid .e-filterbar .e-filterbarcell .e-filterdiv .e-fltrinputdiv  {
+        text-align: left !important;
+    }
+
+    .e-grid .e-filterdiv .e-fltrinputdiv {
+        text-align: left !important;
+    }
+
+    .e-grid .e-fltrtempdiv{
+        text-align: left !important;
+    }
+
+    .e-filterdiv e-fltrinputdiv{
+        text-align: left !important;
+    }*/
+</style>

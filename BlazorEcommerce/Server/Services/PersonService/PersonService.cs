@@ -1,6 +1,12 @@
 ﻿using AutoMapper;
 using BlazorEcommerce.Server.Services.PersonService;
 using BlazorEcommerce.Shared.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Syncfusion.Blazor.Diagrams;
+using Syncfusion.Blazor.Grids;
+using Syncfusion.Blazor.Kanban.Internal;
+using System.Xml;
 
 namespace BlazorEcommerce.Server.Services.ProductService
 {
@@ -31,7 +37,7 @@ namespace BlazorEcommerce.Server.Services.ProductService
 
         public async Task<ServiceResponse<PersonDto>> UpdatePerson(PersonDto person)
         {
-            var dbProduct = await _context.Person
+            var dbProduct = await _context.Person.AsNoTracking()
                     .FirstOrDefaultAsync(p => p.Personid == person.Personid);
 
             if (dbProduct == null)
@@ -43,9 +49,25 @@ namespace BlazorEcommerce.Server.Services.ProductService
                 };
             }
 
-            //To do 
-            //Convert PersonDto to Person entity
-            await _context.SaveChangesAsync();
+            var updatedEntity = _mapper.Map<Person>(person);
+
+            try
+            {  
+                if(_context.Entry(updatedEntity).State == EntityState.Detached){
+                    _context.Attach(updatedEntity);
+                    _context.Entry(updatedEntity).State = EntityState.Modified;
+                }
+        
+
+                await _context.SaveChangesAsync(); 
+                
+                    }
+            catch (Exception exp)
+            {
+
+                throw new Exception(exp.Message);
+            }
+          
             return new ServiceResponse<PersonDto> { Data = person };
         }
 
@@ -75,7 +97,7 @@ namespace BlazorEcommerce.Server.Services.ProductService
 
         public async Task<ServiceResponse<List<PersonDto>>> GetPersonListAsync()
         {
-            var personList = await _context.Person.ToListAsync();
+            var personList = await _context.Person.Include(s=>s.Class).ToListAsync();
             var result = personList.Select(s => _mapper.Map<PersonDto>(s)).ToList();
              return new ServiceResponse<List<PersonDto>> { Data = result };
             
