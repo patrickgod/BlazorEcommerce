@@ -8,6 +8,7 @@
 @using BlazorEcommerce.Shared.Models;
 
 @inject IPersonService PersonService;
+@inject IClassService ClassService;
 @implements IDisposable
 @attribute [Authorize];
 @inject CustomAuthStateProvider AuthStateProvider;
@@ -28,7 +29,7 @@
     }
 *@
 
-<SfGrid @ref="Grid" DataSource="@PersonService.Person" EnableAdaptiveUI="true" AdaptiveUIMode="AdaptiveMode.Both" Width="%80" Height="%90"
+<SfGrid @ref="grid" DataSource="@PersonService.Person" EnableAdaptiveUI="true" AdaptiveUIMode="AdaptiveMode.Both" Width="%80" Height="%90"
         AllowPaging="true" AllowFiltering="true" AllowSorting=" true" Toolbar="@(new List<string>() { "Add", "Edit", "Delete", "Cancel", "Update", "Search" })">>
     <GridFilterSettings Type="@Syncfusion.Blazor.Grids.FilterType.Excel" ShowFilterBarStatus="false" Operators="Operator.Contains" Mode="FilterBarMode.Immediate" ImmediateModeDelay="500">
     </GridFilterSettings>
@@ -88,7 +89,8 @@
 
 
 @code {
-    SfGrid<PersonDto> Grid;
+    SfGrid<PersonDto> grid;
+    List<IdValuePair> classList;
 
     bool authorized = false;
     private string? activeBreakpoint { get; set; }
@@ -107,7 +109,7 @@
 
     public void ValueChange(Syncfusion.Blazor.Buttons.ChangeEventArgs<bool> args)
     {
-        Grid.FilterByColumnAsync("Ismature", "equal", args.Checked);
+        grid.FilterByColumnAsync("Ismature", "equal", args.Checked);
     }
 
     protected override async Task OnParametersSetAsync()
@@ -127,6 +129,7 @@
     public async Task GetData()
     {
         await PersonService.GetPersonList();
+        classList = await ClassService.GetClassIdValuePair();
     }
 
     public void ActionBegin(ActionEventArgs<PersonDto> args)
@@ -162,12 +165,12 @@
             {
                 //args.Cancel = true;
                 await PersonService.CreatePerson(args.Data);
-                await Grid.CloseEditAsync();
+                await grid.CloseEditAsync();
             }
             else
             {
                 await PersonService.UpdateProduct(args.Data);
-                await Grid.CloseEditAsync();
+                await grid.CloseEditAsync();
                 //LibraryService.UpdateBook(Args.Data.Id, Args.Data);
             }
             await GetData();
@@ -176,7 +179,7 @@
         {
             //args.Cancel = true;
             await PersonService.DeleteProduct(args.Data);
-            await Grid.CloseEditAsync();
+            await grid.CloseEditAsync();
             await GetData();
         }
         

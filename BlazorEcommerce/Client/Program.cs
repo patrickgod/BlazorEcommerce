@@ -15,9 +15,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Blazored.LocalStorage;
 using MudBlazor.Services;
 using Syncfusion.Blazor;
-
-
-
+using BlazorEcommerce.Client.Services.ClassService;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
@@ -33,11 +31,14 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ICartService, CartService>();
-builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
-builder.Services.AddScoped<IPersonService, PersonService>();
-
 builder.Services.AddScoped<IProductTypeService, ProductTypeService>();
+
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IPersonService, PersonService>();
+builder.Services.AddScoped<IClassService, ClassService>();
+
+
 builder.Services.AddOptions();
 builder.Services.AddAuthorizationCore();
 //builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();

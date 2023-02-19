@@ -15,6 +15,7 @@ using Microsoft.IdentityModel.Tokens;
 using BlazorEcommerce.Server.Services.PersonService;
 using AutoMapper;
 using BlazorEcommerce.Server.Mapper;
+using BlazorEcommerce.Server.Services.ClassService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,6 +48,7 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 builder.Services.AddScoped<IProductTypeService, ProductTypeService>();
+builder.Services.AddScoped<IClassService, ClassService>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
