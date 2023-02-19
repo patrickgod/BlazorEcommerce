@@ -2,8 +2,11 @@
 @using Syncfusion.Blazor.Grids;
 @using Syncfusion.Blazor.DropDowns
 @using Syncfusion.Blazor.Buttons;
+@using Syncfusion.Blazor.Navigations
 @using Syncfusion.Blazor.Spinner
 @using Syncfusion.Blazor.Popups;
+@using Syncfusion.Blazor.Inputs;
+
 
 @using BlazorEcommerce.Shared.Models;
 
@@ -25,8 +28,8 @@
         <h3><span>Öğrenci Listesi</span></h3>
     </div>
 
-
-<SfDialog @ref="Dialog" Width="250px" Visible="false" ShowCloseIcon="true" IsModal="true">
+@*Hiddden dialog for delete confirmation*@
+<SfDialog @ref="DialogPersonDelete" Width="250px" Visible="false" ShowCloseIcon="true" IsModal="true">
     <DialogEvents Closed="Closed"></DialogEvents>
     <DialogTemplates>
         @*Here you can customize the Header and Content of delete confirmation dialog*@
@@ -47,10 +50,22 @@
     </DialogButtons>
 </SfDialog>
 
-<SfGrid @ref="grid" DataSource="@PersonService.Person" EnableAdaptiveUI="true" AdaptiveUIMode="AdaptiveMode.Both" Width="%80" Height="%90"
-        AllowPaging="true" AllowFiltering="true" AllowSorting=" true" Toolbar="@(new List<string>() { "Add", "Edit", "Delete", "Cancel", "Update", "Search" })">
+@*Main Grid*@
+<SfGrid @ref="gridperson" DataSource="@PersonService.Person" EnableAdaptiveUI="true" AdaptiveUIMode="AdaptiveMode.Both" Width="%80" Height="%90"
+        AllowPaging="true" AllowFiltering="true" AllowSorting=" true" Toolbar="@(new List<string>() { "Add", "Edit", "Delete", "Cancel", "Update" })">
+       <SfToolbar> 
+        <ToolbarItems> 
+            <ToolbarItem Type="ItemType.Input" Align="Syncfusion.Blazor.Navigations.ItemAlign.Right"> 
+                <Template>
+                    <SfButton OnClick="RemoveFilter">Filtreleri Kaldır</SfButton>
+                    <SfTextBox @ref="searchButton" Placeholder="Enter values to search" Input="OnInput"></SfTextBox>
+                    <span style="padding-left:3px" class="e-search-icon e-icons"></span> 
+                </Template> 
+            </ToolbarItem> 
+        </ToolbarItems> 
+    </SfToolbar> 
 
-    <GridSearchSettings Fields=@SpecificCols  IgnoreAccent="true"></GridSearchSettings>
+    <GridSearchSettings Fields=@SpecificCols Operator=Syncfusion.Blazor.Operator.Contains IgnoreCase="true" IgnoreAccent="true"></GridSearchSettings>
     <GridFilterSettings Type="@Syncfusion.Blazor.Grids.FilterType.Excel" ShowFilterBarStatus="false" Operators="Operator.Contains" Mode="FilterBarMode.Immediate" ImmediateModeDelay="500">
     </GridFilterSettings>
     <GridSortSettings>
@@ -58,10 +73,14 @@
             <GridSortColumn Field="FullName" Direction="Syncfusion.Blazor.Grids.SortDirection.Ascending"></GridSortColumn>
         </GridSortColumns>
     </GridSortSettings>
-    <GridPageSettings PageSize="20"></GridPageSettings>
-    <GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Dialog" />
-    <GridEvents OnActionBegin="ActionBeginHandler" OnActionComplete="ActionCompleteHandler" TValue="PersonDto"></GridEvents>
-    <GridEvents OnActionBegin="OnActionBegin" RowSelected="RowSelectHandler" TValue="PersonDto"></GridEvents>
+    <GridPageSettings PageSize="15"></GridPageSettings>
+    <GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Dialog" >
+        <Validator>
+            <DataAnnotationsValidator></DataAnnotationsValidator>
+        </Validator>
+    </GridEditSettings>
+    <GridEvents OnActionBegin="ActionBeginHandler" OnActionComplete="ActionCompleteHandler" RowSelected="RowSelectHandler" TValue="PersonDto"></GridEvents>
+    
 
     <GridColumns>
         <GridColumn Field=@nameof(PersonDto.FullName) HeaderText="İsim Soyisim" Width="120px" FilterSettings="@(new FilterSettings{ Operator = Operator.Contains })"></GridColumn>
@@ -112,8 +131,9 @@
 
 
 @code {
-    SfGrid<PersonDto>? grid;
-    SfDialog? Dialog;
+    SfGrid<PersonDto>? gridperson;
+    SfTextBox searchButton;
+    SfDialog? DialogPersonDelete;
     List<IdValuePair> classList;
     List<ClassListExtendedDto> classListExtended;
     bool authorized = false;
@@ -137,7 +157,6 @@
 
 
     }
-
     public void Dispose()
     {
         PersonService.PersonChanged -= StateHasChanged;
@@ -168,7 +187,7 @@
     //Grid Actions
     public void ValueChange(Syncfusion.Blazor.Buttons.ChangeEventArgs<bool> args)
     {
-        grid.FilterByColumnAsync("Ismature", "equal", args.Checked);
+        gridperson.FilterByColumnAsync("Ismature", "equal", args.Checked);
     }
 
 
@@ -178,15 +197,8 @@
     {
         flag = true;
     }
-    public void OnActionBegin(ActionEventArgs<PersonDto> Args)
-    {
-        if (Args.RequestType.ToString() == "Delete" && flag)
-        {
-            Args.Cancel = true;  //Cancel default delete action.
-            Dialog.ShowAsync();
-            flag = false;
-        }
-    }
+
+
     public void RowSelectHandler(RowSelectEventArgs<PersonDto> Args)
     {
         SelectedData = Args.Data;
@@ -194,41 +206,70 @@
     private async Task OkClick()
     {
         await PersonService.DeleteProduct(SelectedData);   //Delete the record programmatically while clicking OK button.
-        await Dialog.HideAsync();
+        await DialogPersonDelete.HideAsync();
         await GetData();
     }
     private void CancelClick()
     {
-        Dialog.HideAsync();
+        DialogPersonDelete.HideAsync();
     }
 
+    //Grid custom search
+    public async Task OnInput(InputEventArgs Args)
+    {
+        await Task.Delay(500);
+        if(!String.IsNullOrEmpty(Args.Value) && Args.Value.Count()>1)
+        {
 
-    //Custom CRUD actions
-    public async Task ActionBeginHandler(ActionEventArgs<PersonDto> args)
+            var normalizedValue = Args.Value.ToLower(new System.Globalization.CultureInfo("tr-TR"));
+            await gridperson.SearchAsync(normalizedValue);
+        }
+        else
+            gridperson.SearchAsync(null);
+    }
+
+    //Events and Custom CRUD actions
+    public void RemoveFilter()
+    {
+        gridperson.ClearFilteringAsync();
+        gridperson.Refresh();
+        searchButton.Value = "";
+        gridperson.SearchAsync(null);
+
+
+    }
+    public async Task ActionBeginHandler(ActionEventArgs<PersonDto> Args)
     {
 
-        if (args.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Save))
+        if (Args.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Save))
         {
-            if (args.Action == "Add")
+            if (Args.Action == "Add")
             {
                 //args.Cancel = true;
-                await PersonService.CreatePerson(args.Data);
-                await grid.CloseEditAsync();
+                await PersonService.CreatePerson(Args.Data);
+                await gridperson.CloseEditAsync();
             }
             else
             {
-                await PersonService.UpdateProduct(args.Data);
-                await grid.CloseEditAsync();
+                await PersonService.UpdateProduct(Args.Data);
+                await gridperson.CloseEditAsync();
                 //LibraryService.UpdateBook(Args.Data.Id, Args.Data);
             }
             await GetData();
         }
-        if (args.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Delete))
+        //if (args.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Delete))
+        //{
+        //    //args.Cancel = true;
+        //    await PersonService.DeleteProduct(args.Data);
+        //    await gridperson.CloseEditAsync();
+        //    await GetData();
+        //}
+        if (Args.RequestType.ToString() == "Delete" && flag)
         {
-            //args.Cancel = true;
-            await PersonService.DeleteProduct(args.Data);
-            await grid.CloseEditAsync();
-            await GetData();
+            Args.Cancel = true;  //Cancel default delete action.
+            await DialogPersonDelete.ShowAsync();
+            flag = false;
+         
         }
         
     }
@@ -246,19 +287,19 @@
 }
 
 <style>
-/*    .e-grid .e-pagerexternalmsg {
+/*    .e-gridperson .e-pagerexternalmsg {
         display: none;
     }
 
-    .e-grid .e-filterbar .e-filterbarcell .e-filterdiv .e-fltrinputdiv  {
+    .e-gridperson .e-filterbar .e-filterbarcell .e-filterdiv .e-fltrinputdiv  {
         text-align: left !important;
     }
 
-    .e-grid .e-filterdiv .e-fltrinputdiv {
+    .e-gridperson .e-filterdiv .e-fltrinputdiv {
         text-align: left !important;
     }
 
-    .e-grid .e-fltrtempdiv{
+    .e-gridperson .e-fltrtempdiv{
         text-align: left !important;
     }
 

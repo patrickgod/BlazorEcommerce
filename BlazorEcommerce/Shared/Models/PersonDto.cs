@@ -27,7 +27,7 @@ namespace BlazorEcommerce.Shared.Models
         public string Phone { get; set; }
 
         [Required]
-        public bool? Ismature { get; set; }
+        public bool? Ismature { get; set; }  = true;
         
         
         //public bool Deleted { get; set; } = false;

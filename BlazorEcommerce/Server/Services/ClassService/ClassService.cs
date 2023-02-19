@@ -66,10 +66,10 @@ namespace BlazorEcommerce.Server.Services.ProductService
             return new ServiceResponse<ClassDto> { Data = dto };
         }
 
-        public async Task<ServiceResponse<bool>> DeleteClass(int ClassID)
+        public async Task<ServiceResponse<bool>> DeleteClass(Guid classId)
         {
-            var dbProduct = await _context.Class.FindAsync(ClassID);
-            if (dbProduct == null)
+            var entity = await _context.Class.FindAsync(classId);
+            if (entity == null)
             {
                 return new ServiceResponse<bool>
                 {
@@ -79,6 +79,16 @@ namespace BlazorEcommerce.Server.Services.ProductService
                 };
             }
 
+            //Search that class fk in person
+            var relatedPersonList = await _context.Person.Where(s => s.Classid == classId).ToListAsync();
+            if (relatedPersonList.Any()) { 
+                foreach (var relatedPerson in relatedPersonList)
+                {
+                    relatedPerson.Classid = null;
+                }
+            }
+
+            _context.Class.Remove(entity);
             await _context.SaveChangesAsync();
             return new ServiceResponse<bool> { Data = true };
         }

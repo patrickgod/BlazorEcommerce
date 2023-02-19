@@ -5,7 +5,7 @@ namespace BlazorEcommerce.Client.Services.ClassService
     public interface IClassService
     {
         event Action ClassChanged;
-        List<ClassDto> Class { get; set; }
+        List<ClassDto> Classes { get; set; }
         string Message { get; set; }
         int CurrentPage { get; set; }
         int PageCount { get; set; }
@@ -16,10 +16,11 @@ namespace BlazorEcommerce.Client.Services.ClassService
         //Task<List<string>> GetProductSearchSuggestions(string searchText);
         //Task GetAdminProducts();
 
-        Task<ClassDto> CreateClass(ClassDto product);
-        Task<ClassDto> UpdateProduct(ClassDto product);
-        Task DeleteProduct(ClassDto product);
+        Task<ClassDto> Create(ClassDto product);
+        Task<ClassDto> Update(ClassDto product);
+        Task Delete(ClassDto product);
 
         Task<List<IdValuePair>> GetClassIdValuePair();
+        Task<List<ClassDto>> GetClassListExtended();
     }
 }

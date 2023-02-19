@@ -10,7 +10,7 @@ namespace BlazorEcommerce.Server.Services.ClassService
          Task<ServiceResponse<ClassDto>> CreateClass(ClassDto ClassDto);
          Task<ServiceResponse<ClassDto>> UpdateClass(ClassDto ClassDto);
         Task<ServiceResponse<List<IdValuePair>>> GetClassIdValuePair();
-         Task<ServiceResponse<bool>> DeleteClass(int Id);
+         Task<ServiceResponse<bool>> DeleteClass(Guid Id);
 
     }
 }

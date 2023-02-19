@@ -1,0 +1,238 @@
+﻿@using Syncfusion.Blazor.Grids;
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Buttons;
+@using Syncfusion.Blazor.Navigations
+@using Syncfusion.Blazor.Spinner
+@using Syncfusion.Blazor.Popups;
+@using Syncfusion.Blazor.Inputs;
+
+
+@using BlazorEcommerce.Shared.Models;
+
+
+@inject IClassService ClassService;
+@implements IDisposable
+@attribute [Authorize];
+@inject CustomAuthStateProvider AuthStateProvider;
+@inject NavigationManager NavigationManager
+
+
+@{
+    
+    var SpecificCols = (new string[] { "Classname" });
+}
+
+
+      <div style="display:flex;justify-content:start;align-items:center">
+        <h3><span>Sınıf Listesi</span></h3>
+    </div>
+
+@*Hiddden dialog for delete*@
+
+
+@*Hiddden dialog for delete confirmation*@
+
+<SfDialog @ref="Dialog" Width="250px" Visible="false" ShowCloseIcon="true" IsModal="true">
+    <DialogEvents Closed="Closed"></DialogEvents>
+    <DialogTemplates>
+        @*Here you can customize the Header and Content of delete confirmation dialog*@
+        <Header>
+            <div style="display:flex;justify-content:start;align-items:self-end">
+                <span class="e-icons e-align-right"></span>
+                <span style="padding-left:5px">Kayıt Silme İşlemi</span>
+            </div>
+
+        </Header>
+        <Content>
+            Seçili kayıt silinsin mi?
+            <div><b>@SelectedData.Classname</b></div>
+        </Content>
+    </DialogTemplates>
+    <DialogButtons>
+        <DialogButton OnClick="@OkClick" Content="Evet" IsPrimary="true"></DialogButton>
+        <DialogButton OnClick="@CancelClick" Content="Hayır"></DialogButton>
+    </DialogButtons>
+</SfDialog>
+
+@*Main Grid*@
+<SfGrid @ref="grid" DataSource="@ClassService.Classes" EnableAdaptiveUI="true" AdaptiveUIMode="AdaptiveMode.Both" Width="%80" Height="%90"
+        AllowPaging="true" AllowFiltering="true" AllowSorting=" true" Toolbar="@(new List<string>() { "Add", "Edit", "Delete", "Cancel", "Update","Refresh" })">
+    <SfToolbar>
+        <ToolbarItems>
+            <ToolbarItem Type="ItemType.Input" Align="Syncfusion.Blazor.Navigations.ItemAlign.Right">
+                <Template>
+                    @*Apply styles for Textbox accordingly*@
+                    @*<SfButton OnClick="RemoveFilter">Filtreleri Kaldır</SfButton>*@
+                    <SfTextBox Placeholder="Enter values to search" Input="OnInput"></SfTextBox>
+                    <span style="padding-left:3px" class="e-search-icon e-icons"></span>
+                </Template>
+            </ToolbarItem>
+        </ToolbarItems>
+    </SfToolbar>
+
+    <GridSearchSettings Fields=@SpecificCols Operator=Syncfusion.Blazor.Operator.Contains IgnoreCase="true" IgnoreAccent="true"></GridSearchSettings>
+    <GridFilterSettings Type="@Syncfusion.Blazor.Grids.FilterType.Excel" ShowFilterBarStatus="false" Operators="Operator.Contains" Mode="FilterBarMode.Immediate" ImmediateModeDelay="500">
+    </GridFilterSettings>
+    <GridSortSettings>
+        <GridSortColumns>
+            <GridSortColumn Field="Classname" Direction="Syncfusion.Blazor.Grids.SortDirection.Ascending"></GridSortColumn>
+        </GridSortColumns>
+    </GridSortSettings>
+    <GridPageSettings PageSize="15"></GridPageSettings>
+    <GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true" Mode="EditMode.Dialog" />
+    <GridEvents OnActionBegin="ActionBeginHandler" OnActionComplete="ActionCompleteHandler" RowSelected="RowSelectHandler" TValue="ClassDto"></GridEvents>
+    <GridColumns>
+        <GridColumn Field=@nameof(ClassDto.Classname) HeaderText="Sınıf Adı" Width="120px" FilterSettings="@(new FilterSettings{ Operator = Operator.Contains })"></GridColumn>
+        <GridColumn Field=@nameof(ClassDto.Note) HeaderText="Açıklama" Width="200px"></GridColumn>
+        
+        
+    </GridColumns>
+</SfGrid>
+
+
+
+@code {
+
+    SfGrid<ClassDto>? grid;
+    SfDialog? Dialog;
+    bool authorized = false;
+
+    public ClassDto SelectedData = new ClassDto();
+    public bool flag = true;
+
+    private List<Object> Toolbaritems = new List<Object>() { "Add", "Edit", "Delete", "Update", "Cancel", new ItemModel() { Text = "Refresh", TooltipText = "Refresh", PrefixIcon = "e-click", Id = "Click" } };
+
+    protected override void OnInitialized()
+    {
+        ClassService.ClassChanged += StateHasChanged;
+    }
+
+    public void Dispose()
+    {
+        ClassService.ClassChanged -= StateHasChanged;
+    }
+
+    public async Task GetData()
+    {
+        await ClassService.GetClassList();
+
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+
+
+        var authState = await AuthStateProvider.IsAuthenticated();
+        if (authState)
+        {
+            authorized = true;
+            GetData();
+        }
+        else
+            NavigationManager.NavigateTo("/login");
+    }
+
+
+    //Check from here
+    //Grid Actions
+    public void ValueChange(Syncfusion.Blazor.Buttons.ChangeEventArgs<bool> args)
+    {
+        grid.FilterByColumnAsync("Classname", "equal", args.Checked);
+    }
+
+
+    //Grid Actions
+
+
+    //Grid Delete Confirmation
+
+
+    public void Closed()
+    {
+        flag = true;
+    }
+
+    private async Task OkClick()
+    {
+        await ClassService.Delete(SelectedData);   //Delete the record programmatically while clicking OK button.
+        await Dialog.HideAsync();
+        await GetData();
+    }
+    private void CancelClick()
+    {
+        Dialog.HideAsync();
+    }
+
+    //Grid custom search
+    public async Task OnInput(InputEventArgs Args)
+    {
+        await Task.Delay(500);
+        if (!String.IsNullOrEmpty(Args.Value) && Args.Value.Count() > 1)
+        {
+
+            var normalizedValue = Args.Value.ToLower(new System.Globalization.CultureInfo("tr-TR"));
+            await grid.SearchAsync(normalizedValue);
+        }
+        else
+            grid.SearchAsync(null);
+    }
+
+    //Grid Events and Custom CRUD actions
+    public void RemoveFilter()
+    {
+        grid.ClearFilteringAsync();
+        grid.Refresh();
+
+    }
+
+    public void OnActionBegin(ActionEventArgs<ClassDto> Args)
+    {
+        if (Args.RequestType.ToString() == "Delete" && flag)
+        {
+            Args.Cancel = true;  //Cancel default delete action.
+            Dialog.ShowAsync();
+            flag = false;
+        }
+    }
+    public void RowSelectHandler(RowSelectEventArgs<ClassDto> Args)
+    {
+        SelectedData = Args.Data;
+    }
+
+
+    public async Task ActionBeginHandler(ActionEventArgs<ClassDto> args)
+    {
+
+        if (args.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Save))
+        {
+            if (args.Action == "Add")
+            {
+                //args.Cancel = true;
+                await ClassService.Create(args.Data);
+                await grid.CloseEditAsync();
+            }
+            else
+            {
+                await ClassService.Update(args.Data);
+                await grid.CloseEditAsync();
+                //LibraryService.UpdateBook(Args.Data.Id, Args.Data);
+            }
+            await GetData();
+        }
+        if (args.RequestType.ToString() == "Delete" && flag)
+        {
+            args.Cancel = true;  //Cancel default delete action.
+            await Dialog.ShowAsync();
+            flag = false;
+        }
+
+    }
+
+    public void ActionCompleteHandler(ActionEventArgs<ClassDto> Args)
+    {
+        if (Args.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Save))
+        {
+            GetData(); //to fetch the updated data from db to Grid
+        }
+    }
+}

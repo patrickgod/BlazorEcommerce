@@ -33,10 +33,10 @@ namespace BlazorEcommerce.Server.Controllers
             return Ok(result);
         }
 
-        [HttpDelete("{id}")]
-        public async Task<ActionResult<ServiceResponse<bool>>> DeleteClass(int id)
+        [HttpDelete("{Classid}")]
+        public async Task<ActionResult<ServiceResponse<bool>>> DeleteClass(Guid Classid)
         {
-            var result = await _ClassService.DeleteClass(id);
+            var result = await _ClassService.DeleteClass(Classid);
             return Ok(result);
         }
 

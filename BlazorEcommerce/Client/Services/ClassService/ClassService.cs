@@ -11,7 +11,7 @@ namespace BlazorEcommerce.Client.Services.ClassService
             _http = http;
         }
 
-        public List<ClassDto> Class { get; set; } = new List<ClassDto>();
+        public List<ClassDto> Classes { get; set; } = new List<ClassDto>();
         public string Message { get; set; } = "Loading products...";
         public int CurrentPage { get; set; } = 1;
         public int PageCount { get; set; } = 0;
@@ -26,7 +26,7 @@ namespace BlazorEcommerce.Client.Services.ClassService
             return resultData;
         }
 
-        public async Task<ClassDto> CreateClass(ClassDto Class)
+        public async Task<ClassDto> Create(ClassDto Class)
         {
             var result = await _http.PostAsJsonAsync("api/Class", Class);
             var newClass = (await result.Content
@@ -34,30 +34,39 @@ namespace BlazorEcommerce.Client.Services.ClassService
             return newClass;
         }
 
-        public async Task DeleteProduct(ClassDto Class)
+        public async Task Delete(ClassDto Class)
         {
             var result = await _http.DeleteAsync($"api/Class/{Class.Classid}");
         }
 
-        public async Task<ClassDto> UpdateProduct(ClassDto Class)
+        public async Task<ClassDto> Update(ClassDto Class)
         {
             var result = await _http.PutAsJsonAsync($"api/Class", Class);
             var content = await result.Content.ReadFromJsonAsync<ServiceResponse<ClassDto>>();
             return content.Data;
         }
 
+        public async Task<List<ClassDto>> GetClassListExtended()
+        {
+            var result = await _http.GetFromJsonAsync<ServiceResponse<List<ClassDto>>>("api/Class");
+
+            //if (result != null && result.Data != null)
+                return result.Data;
+
+       
+        }
 
         public async Task GetClassList()
         {
             var result = await _http.GetFromJsonAsync<ServiceResponse<List<ClassDto>>>("api/Class");
 
             if (result != null && result.Data != null)
-                Class = result.Data;
+                Classes = result.Data;
 
             CurrentPage = 1;
             PageCount = 0;
 
-            if (Class.Count == 0)
+            if (Classes.Count == 0)
                 Message = "No products found";
 
             ClassChanged.Invoke();
