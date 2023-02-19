@@ -9,7 +9,7 @@ namespace BlazorEcommerce.Server.Services.PersonService
          Task<ServiceResponse<PersonDto>> GetPersonListByName(string searchText);
          Task<ServiceResponse<PersonDto>> CreatePerson(PersonDto PersonDto);
          Task<ServiceResponse<PersonDto>> UpdatePerson(PersonDto PersonDto);
-         Task<ServiceResponse<bool>> DeletePerson(int PersonDtoId);
+         Task<ServiceResponse<bool>> DeletePerson(Guid PersonDtoId);
 
     }
 }

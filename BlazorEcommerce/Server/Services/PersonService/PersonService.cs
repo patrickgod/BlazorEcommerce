@@ -50,6 +50,7 @@ namespace BlazorEcommerce.Server.Services.ProductService
             }
 
             var updatedEntity = _mapper.Map<Person>(person);
+//            updatedEntity.Class = null;
 
             try
             {  
@@ -71,7 +72,7 @@ namespace BlazorEcommerce.Server.Services.ProductService
             return new ServiceResponse<PersonDto> { Data = person };
         }
 
-        public async Task<ServiceResponse<bool>> DeletePerson(int personID)
+        public async Task<ServiceResponse<bool>> DeletePerson(Guid personID)
         {
             var dbProduct = await _context.Person.FindAsync(personID);
             if (dbProduct == null)
@@ -97,7 +98,7 @@ namespace BlazorEcommerce.Server.Services.ProductService
 
         public async Task<ServiceResponse<List<PersonDto>>> GetPersonListAsync()
         {
-            var personList = await _context.Person.Include(s=>s.Class).ToListAsync();
+            var personList = await _context.Person.Where(s=>!s.Deleted).Include(s=>s.Class).ToListAsync();
             var result = personList.Select(s => _mapper.Map<PersonDto>(s)).ToList();
              return new ServiceResponse<List<PersonDto>> { Data = result };
             
