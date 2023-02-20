@@ -8,6 +8,11 @@
     }
   },
   "profiles": {
+
+    "Api": {
+      "commandName": "Project",
+      "commandLineArgs": "start --cors *"
+    },
     "BlazorEcommerce": {
       "commandName": "Project",
       "dotnetRunMessages": true,

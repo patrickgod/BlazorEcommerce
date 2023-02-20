@@ -50,6 +50,6 @@ builder.Services.AddScoped<AuthenticationStateProvider>(s => s.GetRequiredServic
 
 
 builder.Services.AddSyncfusionBlazor();
-builder.Services.AddSyncfusionBlazor(options => { options.IgnoreScriptIsolation = true; });
+//builder.Services.AddSyncfusionBlazor(options => { options.IgnoreScriptIsolation = true; });
 
 await builder.Build().RunAsync();

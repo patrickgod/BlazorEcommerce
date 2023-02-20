@@ -24,8 +24,8 @@
 }
 
 
-      <div style="display:flex;justify-content:start;align-items:center">
-        <h3><span>Öğrenci Listesi</span></h3>
+      <div style="display:flex;justify-content:start;align-items:flex-start">
+    <h3><span>Öğrenci Listesi</span></h3> <span style="font-size:18px">&nbsp;(@countOfStudents)</span>
     </div>
 
 @*Hiddden dialog for delete confirmation*@
@@ -137,6 +137,7 @@
     List<IdValuePair> classList;
     List<ClassListExtendedDto> classListExtended;
     bool authorized = false;
+    int countOfStudents;
 
     public PersonDto SelectedData = new PersonDto();
     public bool flag = true;
@@ -181,6 +182,7 @@
     public async Task GetData()
     {
         await PersonService.GetPersonList();
+        countOfStudents = PersonService.Person.Count();
 
     }
 

@@ -92,7 +92,20 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapRazorPages();
-app.MapControllers();
-app.MapFallbackToFile("index.html");
+
+app.UseEndpoints(endpoints =>
+{
+
+    //ZS new line added
+    endpoints.MapDefaultControllerRoute();
+
+    //Original code
+    endpoints.MapControllers();
+    endpoints.MapFallbackToFile("index.html");
+
+});
+
+//app.MapControllers();
+//app.MapFallbackToFile("index.html");
 
 app.Run();
