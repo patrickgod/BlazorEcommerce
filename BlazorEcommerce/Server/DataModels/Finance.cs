@@ -8,14 +8,13 @@ namespace BlazorEcommerce.Server.Data
     public partial class Finance
     {
         public Guid Financeid { get; set; }
-        public Guid? Monthid { get; set; }
+        public DateTime Financedate { get; set; }
+        public int? Duedateday { get; set; }
         public Guid? Personid { get; set; }
-        public bool? Ispaid { get; set; }
-        public string Note { get; set; }
-        public DateTime? Lastpaymentdate { get; set; }
+        public bool Ispaid { get; set; }
         public DateTime? Paymentdate { get; set; }
+        public bool Deleted { get; set; }
 
-        public virtual Months Month { get; set; }
         public virtual Person Person { get; set; }
     }
 }

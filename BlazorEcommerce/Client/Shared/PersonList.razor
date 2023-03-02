@@ -259,13 +259,7 @@
             }
             await GetData();
         }
-        //if (args.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Delete))
-        //{
-        //    //args.Cancel = true;
-        //    await PersonService.DeleteProduct(args.Data);
-        //    await gridperson.CloseEditAsync();
-        //    await GetData();
-        //}
+     
         if (Args.RequestType.ToString() == "Delete" && flag)
         {
             Args.Cancel = true;  //Cancel default delete action.

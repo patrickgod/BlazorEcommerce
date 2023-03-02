@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
+
 namespace BlazorEcommerce.Server.Data
 {
     public partial class DataContext : DbContext
@@ -23,7 +24,6 @@ namespace BlazorEcommerce.Server.Data
         public virtual DbSet<Class> Class { get; set; }
         public virtual DbSet<Finance> Finance { get; set; }
         public virtual DbSet<Images> Images { get; set; }
-        public virtual DbSet<Months> Months { get; set; }
         public virtual DbSet<OrderItems> OrderItems { get; set; }
         public virtual DbSet<Orders> Orders { get; set; }
         public virtual DbSet<Person> Person { get; set; }
@@ -71,30 +71,28 @@ namespace BlazorEcommerce.Server.Data
             {
                 entity.ToTable("FINANCE");
 
+                entity.HasIndex(e => new { e.Personid, e.Financedate }, "IX_FINANCE")
+                    .IsUnique();
+
                 entity.Property(e => e.Financeid)
                     .HasColumnName("FINANCEID")
                     .HasDefaultValueSql("(newid())");
 
-                entity.Property(e => e.Ispaid).HasColumnName("ISPAID");
+                entity.Property(e => e.Deleted).HasColumnName("DELETED");
 
-                entity.Property(e => e.Lastpaymentdate)
+                entity.Property(e => e.Duedateday).HasColumnName("DUEDATEDAY");
+
+                entity.Property(e => e.Financedate)
                     .HasColumnType("date")
-                    .HasColumnName("LASTPAYMENTDATE");
+                    .HasColumnName("FINANCEDATE");
 
-                entity.Property(e => e.Monthid).HasColumnName("MONTHID");
-
-                entity.Property(e => e.Note).HasColumnName("NOTE");
+                entity.Property(e => e.Ispaid).HasColumnName("ISPAID");
 
                 entity.Property(e => e.Paymentdate)
                     .HasColumnType("date")
                     .HasColumnName("PAYMENTDATE");
 
                 entity.Property(e => e.Personid).HasColumnName("PERSONID");
-
-                entity.HasOne(d => d.Month)
-                    .WithMany(p => p.Finance)
-                    .HasForeignKey(d => d.Monthid)
-                    .HasConstraintName("FK_FINANCE_MONTHS");
 
                 entity.HasOne(d => d.Person)
                     .WithMany(p => p.Finance)
@@ -111,21 +109,6 @@ namespace BlazorEcommerce.Server.Data
                 entity.HasOne(d => d.Product)
                     .WithMany(p => p.Images)
                     .HasForeignKey(d => d.ProductId);
-            });
-
-            modelBuilder.Entity<Months>(entity =>
-            {
-                entity.HasKey(e => e.Monthid);
-
-                entity.ToTable("MONTHS");
-
-                entity.Property(e => e.Monthid)
-                    .HasColumnName("MONTHID")
-                    .HasDefaultValueSql("(newid())");
-
-                entity.Property(e => e.Monthname)
-                    .HasMaxLength(50)
-                    .HasColumnName("MONTHNAME");
             });
 
             modelBuilder.Entity<OrderItems>(entity =>

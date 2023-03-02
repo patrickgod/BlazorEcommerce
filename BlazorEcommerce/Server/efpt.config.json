@@ -35,10 +35,6 @@
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[MONTHS]",
-         "ObjectType": 0
-      },
-      {
          "Name": "[dbo].[OrderItems]",
          "ObjectType": 0
       },

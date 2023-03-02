@@ -1,7 +1,8 @@
-﻿using BlazorEcommerce.Server.Services.PersonService;
+﻿using BlazorEcommerce.Server.Services;
+using BlazorEcommerce.Server.Services.PersonService;
 using BlazorEcommerce.Shared.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+
 using Microsoft.AspNetCore.Mvc;
 
 namespace BlazorEcommerce.Server.Controllers

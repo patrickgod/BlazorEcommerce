@@ -13,6 +13,9 @@ namespace BlazorEcommerce.Server.Mapper
             CreateMap<Class, ClassDto>();
             CreateMap<ClassDto, Class>().ForMember(t => t.Person, opt => opt.Ignore());
 
+            CreateMap<Finance, FinanceDto>();
+            CreateMap<FinanceDto, Finance>().ForMember(t => t.Person, opt => opt.Ignore()); ;
+
 
 
             CreateMap<ClassDto, IdValuePair>()

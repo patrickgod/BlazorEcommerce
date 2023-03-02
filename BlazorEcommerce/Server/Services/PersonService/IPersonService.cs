@@ -6,6 +6,7 @@ namespace BlazorEcommerce.Server.Services.PersonService
     {
          Task<ServiceResponse<List<PersonDto>>> GetPersonListAsync();
          Task<ServiceResponse<PersonDto>> GetPersonAsync(int personId);
+         Task<List<Guid>> GetPersonIdListAsync();
          Task<ServiceResponse<PersonDto>> GetPersonListByName(string searchText);
          Task<ServiceResponse<PersonDto>> CreatePerson(PersonDto PersonDto);
          Task<ServiceResponse<PersonDto>> UpdatePerson(PersonDto PersonDto);

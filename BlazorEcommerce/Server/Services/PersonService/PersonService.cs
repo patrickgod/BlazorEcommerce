@@ -1,34 +1,31 @@
 ﻿using AutoMapper;
-using BlazorEcommerce.Server.Services.PersonService;
 using BlazorEcommerce.Shared.Models;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Syncfusion.Blazor.Diagrams;
-using Syncfusion.Blazor.Grids;
-using Syncfusion.Blazor.Kanban.Internal;
-using System.Xml;
 
-namespace BlazorEcommerce.Server.Services.ProductService
+namespace BlazorEcommerce.Server.Services.PersonService
 {
     public class PersonService : IPersonService
     {
         private readonly DataContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMapper _mapper;
+        private readonly FinanceService.FinanceService _financeService;
 
-        public PersonService(DataContext context, IHttpContextAccessor httpContextAccessor,IMapper mapper)
+        public PersonService(DataContext context, IHttpContextAccessor httpContextAccessor,IMapper mapper,FinanceService.FinanceService financeService)
         {
             _context = context;
             _httpContextAccessor = httpContextAccessor;
             _mapper = mapper;
+            _financeService = financeService;
 
         }
 
          public async Task<ServiceResponse<PersonDto>> CreatePerson(PersonDto person)
         {
-            //To do Add mapper
-            _context.Person.Add(_mapper.Map<Person>(person));
-            await _context.SaveChangesAsync();
+
+            var objectToAdd = _mapper.Map<Person>(person);
+            _context.Person.Add(objectToAdd);
+             await _context.SaveChangesAsync();
+            await _financeService.AddFinanceDateForNewPerson(objectToAdd.Personid);
             return new ServiceResponse<PersonDto> { Data = person };
 
             //throw new NotImplementedException();
@@ -96,9 +93,16 @@ namespace BlazorEcommerce.Server.Services.ProductService
             throw new NotImplementedException();
         }
 
+        public async Task<List<Guid>> GetPersonIdListAsync()
+        {
+            var personIdList = await _context.Person.Where(s => !s.Deleted).OrderBy(t=>t.Fullname).Select(t => t.Personid).ToListAsync();
+            return personIdList;
+
+        }
+
         public async Task<ServiceResponse<List<PersonDto>>> GetPersonListAsync()
         {
-            var personList = await _context.Person.Where(s=>!s.Deleted).Include(s=>s.Class).ToListAsync();
+            var personList = await _context.Person.OrderBy(t => t.Fullname).Where(s=>!s.Deleted).Include(s=>s.Class).ToListAsync();
             var result = personList.Select(s => _mapper.Map<PersonDto>(s)).ToList();
              return new ServiceResponse<List<PersonDto>> { Data = result };
             

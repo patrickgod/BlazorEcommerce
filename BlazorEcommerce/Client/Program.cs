@@ -8,6 +8,7 @@ global using BlazorEcommerce.Client.Services.CartService;
 global using BlazorEcommerce.Client.Services.OrderService;
 global using BlazorEcommerce.Client.Services.PersonService;
 global using BlazorEcommerce.Client.Services.ClassService;
+global using BlazorEcommerce.Client.Services.FinanceService;
 
 global using BlazorEcommerce.Client.Services.ProductTypeService;
 using BlazorEcommerce.Client;
@@ -38,6 +39,7 @@ builder.Services.AddScoped<IProductTypeService, ProductTypeService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IPersonService, PersonService>();
 builder.Services.AddScoped<IClassService, ClassService>();
+builder.Services.AddScoped<IFinanceService, FinanceService>();
 
 
 builder.Services.AddOptions();

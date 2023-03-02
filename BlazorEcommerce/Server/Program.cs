@@ -16,6 +16,10 @@ using BlazorEcommerce.Server.Services.PersonService;
 using AutoMapper;
 using BlazorEcommerce.Server.Mapper;
 using BlazorEcommerce.Server.Services.ClassService;
+using BlazorEcommerce.Server.Services;
+using BlazorEcommerce.Server.Services.FinanceService;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,9 +41,6 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 
-
-
-builder.Services.AddScoped<IPersonService, PersonService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ICartService, CartService>();
@@ -48,7 +49,17 @@ builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 builder.Services.AddScoped<IProductTypeService, ProductTypeService>();
+
+builder.Services.AddScoped<IPersonService, PersonService>();
+builder.Services.AddScoped<Lazy<IPersonService>>(provider => new Lazy<IPersonService>(provider.GetService<IPersonService>));
+builder.Services.AddScoped<Lazy<PersonService>>();
+builder.Services.AddScoped<FinanceService>();
+
+
+builder.Services.AddScoped<IFinanceService, FinanceService>();
 builder.Services.AddScoped<IClassService, ClassService>();
+
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {

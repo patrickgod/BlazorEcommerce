@@ -2,17 +2,41 @@
 #nullable disable
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BlazorEcommerce.Shared.Models
 {
     public partial class FinanceDto
     {
+        [Key]
         public Guid Financeid { get; set; }
-        public Guid? Monthid { get; set; }
+
+        [ReadOnly(true)]
+        [NotMapped]
+        public DateTime Financedate { get; set; }
+
+        [ReadOnly(true)]
+        [NotMapped]
+        public string FullName { get; set; }
+
+        [ReadOnly(true)]
+        [NotMapped]
+        public bool NotPaidPreviousmonth { get; set; }
+
+        [Required(ErrorMessage ="Son ödeme tarihini giriniz!")]
+        public int? Duedateday { get; set; }
         public Guid? Personid { get; set; }
-        public bool? Ispaid { get; set; }
-        public string Note { get; set; }
-        public DateTime? Lastpaymentdate { get; set; }
+
+        [Required]
+        public bool Ispaid { get; set; } = false;
         public DateTime? Paymentdate { get; set; }
+       
+        [ReadOnly(true)]
+        [NotMapped]
+        public string Note { get; set; }
+
+        
     }
 }

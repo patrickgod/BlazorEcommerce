@@ -3,7 +3,7 @@ using BlazorEcommerce.Server.Services.ClassService;
 using BlazorEcommerce.Shared.Models;
 
 
-namespace BlazorEcommerce.Server.Services.ProductService
+namespace BlazorEcommerce.Server.Services.ClassService
 {
     public class ClassService : IClassService
     {

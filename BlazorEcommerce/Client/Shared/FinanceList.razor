@@ -1,0 +1,294 @@
+﻿@using Syncfusion.Blazor
+@using Syncfusion.Blazor.Grids;
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Buttons;
+@using Syncfusion.Blazor.Navigations
+@using Syncfusion.Blazor.Spinner
+@using Syncfusion.Blazor.Popups;
+@using Syncfusion.Blazor.Inputs;
+@using Syncfusion.Blazor.Calendars;
+
+
+@using BlazorEcommerce.Shared.Models;
+
+@inject IFinanceService FinanceService;
+@inject IPersonService PersonService;
+@implements IDisposable
+@attribute [Authorize];
+@inject CustomAuthStateProvider AuthStateProvider;
+@inject NavigationManager NavigationManager
+
+
+@{
+
+    var SpecificCols = (new string[] { "FullName" });
+}
+
+
+<div style="display:flex;justify-content:start;align-items:flex-start">
+    <h3><span>Öğrenci Listesi</span></h3> <SfButton OnClick="FillData">Data doldur</SfButton>
+</div>
+
+
+
+
+@*Main Grid*@
+<SfGrid @ref="gridfinance" DataSource="@FinanceService.Finance" EnableAdaptiveUI="true" AdaptiveUIMode="AdaptiveMode.Both" Width="%80" Height="%90"
+        AllowPaging="true" AllowFiltering="true" AllowSorting=" true" AllowTextWrap="true" Toolbar="@(new List<string>() { "Edit","Update","Cancel" })">
+    <SfToolbar>
+        <ToolbarItems>
+            <ToolbarItem Type="ItemType.Input" Align="Syncfusion.Blazor.Navigations.ItemAlign.Right">
+                <Template>
+                    <SfButton OnClick="RemoveFilter">Filtreleri Kaldır</SfButton>
+                    <SfTextBox @ref="searchButton" Placeholder="Enter values to search" Input="OnInput"></SfTextBox>
+                    <span style="padding-left:3px" class="e-search-icon e-icons"></span>
+                </Template>
+            </ToolbarItem>
+        </ToolbarItems>
+    </SfToolbar>
+
+    <GridTextWrapSettings WrapMode="WrapMode.Content"></GridTextWrapSettings>
+    <GridSearchSettings Fields=@SpecificCols Operator=Syncfusion.Blazor.Operator.Contains IgnoreCase="true" IgnoreAccent="true"></GridSearchSettings>
+    <GridFilterSettings Type="@Syncfusion.Blazor.Grids.FilterType.Excel" ShowFilterBarStatus="false" Operators="Operator.Contains" Mode="FilterBarMode.Immediate" ImmediateModeDelay="500">
+    </GridFilterSettings>
+    <GridSortSettings>
+        <GridSortColumns>
+            <GridSortColumn Field="@nameof(FinanceDto.FullName)" Direction="Syncfusion.Blazor.Grids.SortDirection.Ascending"></GridSortColumn>
+        </GridSortColumns>
+    </GridSortSettings>
+    <GridPageSettings PageSize="15"></GridPageSettings>
+    <GridEditSettings  AllowAdding="false" AllowEditing="true" AllowDeleting="false" Mode="EditMode.Normal">
+        @*<Validator>
+            <DataAnnotationsValidator></DataAnnotationsValidator>
+        </Validator>*@
+    </GridEditSettings>
+    <GridEvents OnActionBegin="ActionBeginHandler" OnActionComplete="ActionCompleteHandler" RowSelected="RowSelectHandler" QueryCellInfo="CustomizeCell" TValue="FinanceDto"></GridEvents>
+
+
+    <GridColumns>
+        <GridColumn Field=@nameof(FinanceDto.FullName) AllowEditing="false" HeaderText="Ad Soyad" Width="150"></GridColumn>
+        
+        <GridColumn Field=@nameof(FinanceDto.Duedateday) AllowFiltering="false" AllowSorting="false" AllowEditing="true" EditType="EditType.NumericEdit"
+                    HeaderText="Ödeme Günü" Width="150">
+            <EditTemplate>
+                <SfNumericTextBox ID="OrderID" @bind-Value="@((context as FinanceDto).Duedateday)" Min="1" Max="31" TValue="int?" ValidateOnInput="true"></SfNumericTextBox>
+            </EditTemplate>
+        </GridColumn>
+        
+        <GridColumn Field=@nameof(FinanceDto.Paymentdate) AllowFiltering="false" AllowSorting="false" AllowEditing="true" EditType="EditType.DatePickerEdit" Format="dd/MM/yyyy" 
+        Type="ColumnType.Date" HeaderText="Ödeme Tarihi" Width="100">
+           <EditTemplate>
+                <SfDatePicker ID="OrderDate" @bind-Value="@((context as FinanceDto).Paymentdate)" Min='@MinDate' Max='@MaxDate' Enabled="true" ShowTodayButton="false"
+                              AllowEdit="false" Format="dd/MM/yyyy" TValue="DateTime?" Placeholder="Ödeme yapılan tarihi seçiniz!"> </SfDatePicker>
+           </EditTemplate>
+        </GridColumn>
+
+        <GridColumn Field=@nameof(FinanceDto.Note) AllowFiltering="false" AllowSorting="false" AllowEditing="false" HeaderText="Ödeme Notları" Width="150" Type="ColumnType.String"></GridColumn>
+        <GridColumn Field=@nameof(FinanceDto.Ispaid) AllowFiltering="false" AllowSorting="false" AllowEditing="true" DisplayAsCheckBox="true" MinWidth="10px" Width="80" MaxWidth="80" HeaderText="Ödendi Mi?">
+            <HeaderTemplate>
+                @{
+                    <SfTooltip>
+                        <TooltipTemplates>
+                            <Content>
+                                Ödendi Mi?
+                            </Content>
+                        </TooltipTemplates>
+                        <span style="font-weight:bold;font-size:14px">Ödendi Mi?</span>
+                    </SfTooltip>
+                }
+            </HeaderTemplate>
+            <FilterTemplate> <Syncfusion.Blazor.Buttons.SfCheckBox TChecked="bool" ValueChange="ValueChange"></Syncfusion.Blazor.Buttons.SfCheckBox>  </FilterTemplate>
+            <Template>
+                @{
+                    var value = (context as FinanceDto);
+                    var result = (value.Ispaid) ? "Evet" : "Hayır";
+                    <div style="display:flex;justify-content:start;align-items:center">
+                        <span id="Emptext">@result</span>
+
+                    </div>
+
+                }
+            </Template>
+
+        </GridColumn>
+       
+    </GridColumns>
+</SfGrid>
+
+
+@code {
+    SfGrid<FinanceDto>? gridfinance;
+    SfDatePicker<DateTime?> DateObj;
+    SfTextBox searchButton = new SfTextBox();
+    List<PersonListBaseDto> personList;
+
+    public FinanceDto SelectedData = new FinanceDto();
+
+    public DateTime MinDate { get; set; } = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 01);
+    public DateTime MaxDate { get; set; } = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 31);
+
+
+
+
+    public class PersonListBaseDto
+    {
+        public Guid? Personid { get; set; }
+        public string? Name { get; set; }
+    }
+
+
+    public void FillData(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+    {
+        
+    }
+
+    protected override async void OnInitialized()
+    {
+        FinanceService.FinanceChanged += StateHasChanged;
+
+
+    }
+    public void Dispose()
+    {
+        FinanceService.FinanceChanged -= StateHasChanged;
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+
+
+        var authState = await AuthStateProvider.IsAuthenticated();
+        if (authState)
+        {
+            
+            personList = (PersonService.Person).Select(s => new PersonListBaseDto() { Personid = s.Personid, Name = s.FullName }).ToList();
+            GetData();
+        }
+        else
+            NavigationManager.NavigateTo("/login");
+    }
+
+    public async Task GetData()
+    {
+        await FinanceService.GetFinanceList(DateTime.Now.Day,DateTime.Now.Month);
+
+    }
+
+    //Date picker actions
+    public async void FocusHandler(Syncfusion.Blazor.Calendars.FocusEventArgs args)
+    {
+        await this.DateObj.ShowPopupAsync();
+    }
+
+    //Grid Actions
+    public void ValueChange(Syncfusion.Blazor.Buttons.ChangeEventArgs<bool> args)
+    {
+        gridfinance.FilterByColumnAsync(nameof(FinanceDto.FullName), "equal", args.Checked);
+    }
+
+
+    public void RowSelectHandler(RowSelectEventArgs<FinanceDto> Args)
+    {
+        SelectedData = Args.Data;
+    }
+
+    public void CustomizeCell(QueryCellInfoEventArgs<FinanceDto> Args)
+    {
+        if (!Args.Data.Ispaid && Args.Data.NotPaidPreviousmonth)
+        {
+            Args.Cell.AddStyle(new string[] { "background-color:#dfdedc" });
+        }
+    }
+    
+
+    //Grid custom search
+    public async Task OnInput(InputEventArgs Args)
+    {
+        await Task.Delay(500);
+        if (!String.IsNullOrEmpty(Args.Value) && Args.Value.Count() > 1)
+        {
+
+            var normalizedValue = Args.Value.ToLower(new System.Globalization.CultureInfo("tr-TR"));
+            //await gridfinance.FilterByColumnAsync("Personid", "Contains", normalizedValue); 
+            await gridfinance.SearchAsync(normalizedValue);
+        }
+        else
+            gridfinance.SearchAsync(null);
+    }
+
+    //Events and Custom CRUD actions
+    public void RemoveFilter()
+    {
+        gridfinance.ClearFilteringAsync();
+        gridfinance.Refresh();
+        searchButton.Value = "";
+        gridfinance.SearchAsync(null);
+
+
+    }
+    public async Task ActionBeginHandler(ActionEventArgs<FinanceDto> Args)
+    {
+
+        if (Args.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Save))
+        {
+            if (Args.Action == "Add")
+            {
+                //args.Cancel = true;
+                //await FinanceService.CreatePerson(Args.Data);
+                //await gridfinance.CloseEditAsync();
+            }
+            else
+            {
+                await FinanceService.UpdateFinance(Args.Data,DateTime.Now.Month);
+                await gridfinance.CloseEditAsync();
+                //LibraryService.UpdateBook(Args.Data.Id, Args.Data);
+            }
+            await GetData();
+        }
+
+    }
+
+    public void ActionCompleteHandler(ActionEventArgs<FinanceDto> Args)
+    {
+        if (Args.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Save))
+        {
+            GetData(); //to fetch the updated data from db to Grid
+        }
+    }
+
+
+
+}
+
+<style>
+
+    /*to style the alternate rows*/
+    /*.e-grid .e-row.e-altrow {
+        background-color: #dfdedc;
+    }*/
+    
+    /*to style the remaining rows*/
+    /*.e-grid .e-row {
+        background-color: #dfdedc;
+    }*/
+
+    /*    .e-gridfinance .e-pagerexternalmsg {
+            display: none;
+        }
+
+        .e-gridfinance .e-filterbar .e-filterbarcell .e-filterdiv .e-fltrinputdiv  {
+            text-align: left !important;
+        }
+
+        .e-gridfinance .e-filterdiv .e-fltrinputdiv {
+            text-align: left !important;
+        }
+
+        .e-gridfinance .e-fltrtempdiv{
+            text-align: left !important;
+        }
+
+        .e-filterdiv e-fltrinputdiv{
+            text-align: left !important;
+        }*/
+</style>
