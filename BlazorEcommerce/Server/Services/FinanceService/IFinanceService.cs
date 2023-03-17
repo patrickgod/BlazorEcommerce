@@ -11,6 +11,7 @@ namespace BlazorEcommerce.Server.Services.FinanceService
          Task<ServiceResponse<FinanceDto>> CreateFinance(FinanceDto FinanceDto);
          Task<ServiceResponse<FinanceDto>> UpdateFinance(FinanceDto FinanceDto,int selectedMonth);
          Task<ServiceResponse<bool>> DeleteFinance(Guid FinanceDtoId);
+        Task DeleteByPersonId(Guid personId);
         Task FillData();
 
     }

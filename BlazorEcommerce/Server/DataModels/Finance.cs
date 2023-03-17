@@ -10,10 +10,12 @@ namespace BlazorEcommerce.Server.Data
         public Guid Financeid { get; set; }
         public DateTime Financedate { get; set; }
         public int? Duedateday { get; set; }
+        public int? Duedateday2 { get; set; }
         public Guid? Personid { get; set; }
         public bool Ispaid { get; set; }
         public DateTime? Paymentdate { get; set; }
         public bool Deleted { get; set; }
+        public string Duedatestring { get; set; }
 
         public virtual Person Person { get; set; }
     }

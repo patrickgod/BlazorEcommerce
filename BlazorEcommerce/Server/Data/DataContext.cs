@@ -82,15 +82,17 @@ namespace BlazorEcommerce.Server.Data
 
                 entity.Property(e => e.Duedateday).HasColumnName("DUEDATEDAY");
 
-                entity.Property(e => e.Financedate)
-                    .HasColumnType("date")
-                    .HasColumnName("FINANCEDATE");
+                entity.Property(e => e.Duedateday2).HasColumnName("DUEDATEDAY2");
+
+                entity.Property(e => e.Duedatestring)
+                    .HasMaxLength(100)
+                    .HasColumnName("DUEDATESTRING");
+
+                entity.Property(e => e.Financedate).HasColumnName("FINANCEDATE");
 
                 entity.Property(e => e.Ispaid).HasColumnName("ISPAID");
 
-                entity.Property(e => e.Paymentdate)
-                    .HasColumnType("date")
-                    .HasColumnName("PAYMENTDATE");
+                entity.Property(e => e.Paymentdate).HasColumnName("PAYMENTDATE");
 
                 entity.Property(e => e.Personid).HasColumnName("PERSONID");
 

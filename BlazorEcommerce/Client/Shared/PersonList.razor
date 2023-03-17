@@ -85,9 +85,9 @@
     <GridColumns>
         <GridColumn Field=@nameof(PersonDto.FullName) HeaderText="İsim Soyisim" Width="120px" FilterSettings="@(new FilterSettings{ Operator = Operator.Contains })"></GridColumn>
 
-        <GridForeignColumn Field=@nameof(PersonDto.ClassId) ForeignKeyField="ClassId" ForeignKeyValue="Name" ForeignDataSource="classListExtended" HeaderText="Sınıfı" Width="150"></GridForeignColumn>
+        <GridForeignColumn Field=@nameof(PersonDto.ClassId) TValue="ClassListExtendedDto" FilterSettings="@(new FilterSettings{ Operator = Operator.Contains,Type= Syncfusion.Blazor.Grids.FilterType.Excel})" ForeignKeyField="ClassId" ForeignKeyValue="Name" ForeignDataSource="classListExtended" HeaderText="Sınıfı" Width="150"></GridForeignColumn>
 
-        <GridColumn Field=@nameof(PersonDto.Phone) HeaderText="Telefon" Width="100px"></GridColumn>
+        <GridColumn Field=@nameof(PersonDto.Phone) HeaderText="Telefon" Width="100px" ></GridColumn>
         <GridColumn Field=@nameof(PersonDto.Ismature) DisplayAsCheckBox="true" MinWidth="10px" Width="80" MaxWidth="80" HeaderText="Yetişkin?" >
             <HeaderTemplate>
                 @{

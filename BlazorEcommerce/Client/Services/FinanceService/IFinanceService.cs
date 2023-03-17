@@ -9,12 +9,8 @@ namespace BlazorEcommerce.Client.Services.FinanceService
         string Message { get; set; }
         int CurrentPage { get; set; }
         int PageCount { get; set; }
-        
-        Task GetFinanceList(int day, int month);
-        //Task<ServiceResponse<Finances>> GetFinance(int FinanceId);
-        //Task SearchFinances(string searchText, int page);
-        //Task<List<string>> GetFinanceSearchSuggestions(string searchText);
-        //Task GetAdminFinances();
+
+        Task GetFinanceList(int year, int month);
 
         Task<FinanceDto> CreateFinance(FinanceDto Finance);
         Task<FinanceDto> UpdateFinance(FinanceDto Finance, int selectedMonth);

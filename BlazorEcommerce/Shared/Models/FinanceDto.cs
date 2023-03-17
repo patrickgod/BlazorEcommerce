@@ -27,7 +27,13 @@ namespace BlazorEcommerce.Shared.Models
 
         [Required(ErrorMessage ="Son ödeme tarihini giriniz!")]
         public int? Duedateday { get; set; }
-        public Guid? Personid { get; set; }
+        public int? Duedateday2 { get; set; }
+
+
+        [ReadOnly(true)]
+        [NotMapped]
+        public string Duedatestring { get; set; }
+        public Guid Personid { get; set; }
 
         [Required]
         public bool Ispaid { get; set; } = false;

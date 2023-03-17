@@ -40,9 +40,9 @@ namespace BlazorEcommerce.Client.Services.FinanceService
         }
 
 
-        public async Task GetFinanceList(int day, int month)
+        public async Task GetFinanceList(int year, int month)
         {
-            var result = await _http.GetFromJsonAsync<ServiceResponse<List<FinanceDto>>>($"api/Finance/{day}/{month}");
+            var result = await _http.GetFromJsonAsync<ServiceResponse<List<FinanceDto>>>($"api/Finance/{year}/{month}");
 
             if (result != null && result.Data != null)
                 Finance = result.Data;

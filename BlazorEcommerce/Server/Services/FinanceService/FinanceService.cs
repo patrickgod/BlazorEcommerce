@@ -6,19 +6,33 @@ using BlazorEcommerce.Server.Services.PersonService;
 using BlazorEcommerce.Shared.Models;
 using Microsoft.EntityFrameworkCore;
 using Stripe;
+using Stripe.Identity;
 using System.Text;
+using static BlazorEcommerce.Server.Services.FinanceService.FinanceService;
 
 
 namespace BlazorEcommerce.Server.Services.FinanceService
 {
+
+    public static class FinanceOperation{
+        public enum Operation
+        {
+            Add,
+            Update
+        }
+    }
+
     public class FinanceService : IFinanceService
     {
         private readonly DataContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMapper _mapper;
         private readonly Lazy<IPersonService> _personService;
-        
 
+        private readonly static int _defaultAddYearsForFinanceDueDate = 2;
+        private readonly static int _defaultStartingDayForFinanceDueDate = 15;
+
+ 
 
         public FinanceService(DataContext context, IHttpContextAccessor httpContextAccessor,IMapper mapper, Lazy<IPersonService> personService)
         {
@@ -42,8 +56,11 @@ namespace BlazorEcommerce.Server.Services.FinanceService
 
         public async Task<ServiceResponse<FinanceDto>> UpdateFinance(FinanceDto Finance, int selectedMonth)
         {
-            var dbProduct = await _context.Finance.AsNoTracking()
-                    .FirstOrDefaultAsync(p => p.Financeid == Finance.Financeid);
+            if (!Finance.Ispaid)
+            {
+                Finance.Paymentdate = null;
+            }
+            var dbProduct = await _context.Finance.AsNoTracking().FirstOrDefaultAsync(p => p.Financeid == Finance.Financeid);
 
             if (dbProduct == null)
             {
@@ -63,11 +80,14 @@ namespace BlazorEcommerce.Server.Services.FinanceService
                     _context.Attach(updatedEntity);
                     _context.Entry(updatedEntity).State = EntityState.Modified;
                 }
-        
+                await _context.SaveChangesAsync();
 
-                await _context.SaveChangesAsync(); 
-                
-                    }
+                //Update all due date of person
+                //await _context.Finance.Where(p => p.Personid == Finance.Personid).ForEachAsync(t=>t.Duedateday = Finance.Duedateday);
+                await AddFinanceDateForNewPerson(FinanceOperation.Operation.Update, Finance.Personid, Finance.Financedate.Month,Finance.Duedateday);
+                //await _context.SaveChangesAsync();
+
+            }
             catch (Exception exp)
             {
 
@@ -75,6 +95,12 @@ namespace BlazorEcommerce.Server.Services.FinanceService
             }
           
             return new ServiceResponse<FinanceDto> { Data = Finance };
+        }
+
+        public async Task DeleteByPersonId(Guid personId)
+        {
+            await _context.Finance.Where(s => s.Personid == personId).ForEachAsync(t => t.Deleted = true);
+            await _context.SaveChangesAsync();
         }
 
         public async Task<ServiceResponse<bool>> DeleteFinance(Guid FinanceID)
@@ -106,7 +132,8 @@ namespace BlazorEcommerce.Server.Services.FinanceService
             throw new NotImplementedException();
         }
 
-        public async Task<ServiceResponse<List<FinanceDto>>> GetFinanceListAsync(int day,int month)
+
+        public async Task<ServiceResponse<List<FinanceDto>>> GetFinanceListAsync(int year,int month)
         {
             //Daterange;
             //https://blazor.syncfusion.com/documentation/datepicker/date-range;
@@ -117,21 +144,26 @@ namespace BlazorEcommerce.Server.Services.FinanceService
                 var sb = new StringBuilder();
 
                 //Get finance records
-                var financeList = await _context.Finance.Where(s => !s.Deleted  && s.Financedate.Month == month).ToListAsync();
+                var financeList = await _context.Finance.AsNoTracking().Where(s => !s.Deleted && s.Financedate.Year == year && s.Financedate.Month == month).ToListAsync();
 
                 //get person ID's
                 var personList = await _personService.Value.GetPersonListAsync();
-                //var personIdList = new List<Guid>(); 
+                //var personIdList = await _personService.Value.GetPersonIdListAsync();
 
                 //All person list
                 foreach (var person in personList.Data)
                 {
-                    
-                    var checkUnpaymentDetails = await _context.Finance .Where(s => !s.Deleted
+                    var checkUnpaymentDetails = await _context.Finance.AsNoTracking() 
+                                                                        .Where(s => !s.Deleted
                                                                                    && s.Personid == person.Personid 
-                                                                                   && (s.Financedate.Year <= DateTime.Now.Year && s.Financedate.Month <= DateTime.Now.Month && s.Duedateday < DateTime.Now.Day)
+                                                                                   && s.Financedate.Year <= DateTime.Now.Year 
+                                                                                   && ((s.Financedate.Month == DateTime.Now.Month && s.Duedateday < DateTime.Now.Day ) || (s.Financedate.Month < DateTime.Now.Month))
                                                                                    && s.Ispaid == false)
-                                                                       .OrderByDescending(t => t.Financedate).ToListAsync();
+                                                                        .Select(t=>t.Financedate)
+                                                                       .OrderByDescending(t => t).ToListAsync();
+
+                    var hasDoublePaymentInMonth = financeList.Where(s => s.Personid == person.Personid
+                                                                        && s.Duedateday2 != null).FirstOrDefault();
                     var hasFinancyEntity = financeList.Where(s => s.Personid == person.Personid).FirstOrDefault();
 
 
@@ -141,7 +173,7 @@ namespace BlazorEcommerce.Server.Services.FinanceService
                     foreach (var unpaymentDetail in checkUnpaymentDetails)
                     {
                         
-                        var date = unpaymentDetail.Financedate;
+                        var date = unpaymentDetail;
                         sb.Append("(");
                         sb.Append(date.Month.ToString()+".");
                         sb.Append(") ");
@@ -149,7 +181,14 @@ namespace BlazorEcommerce.Server.Services.FinanceService
 
                     if (checkUnpaymentDetails.Any())
                     {
-                        sb.Append("ay ödemesi yapılmamış");
+                        sb.Append("ay ödemesi yapılmamış!");
+                    }
+
+                    if (hasDoublePaymentInMonth != null)
+                    {
+                        if (checkUnpaymentDetails.Any())
+                            sb.Append(Environment.NewLine);
+                        sb.Append($" Bu ay 2 ödemesi bulunmaktadır => {hasDoublePaymentInMonth.Duedateday} ve {hasDoublePaymentInMonth.Duedateday2}");
                     }
 
                     if (hasFinancyEntity != null)
@@ -157,7 +196,7 @@ namespace BlazorEcommerce.Server.Services.FinanceService
                         FinanceDto dto = _mapper.Map<FinanceDto>(hasFinancyEntity);
                         dto.FullName = person.FullName;
                         dto.Note = sb.ToString();
-                        dto.NotPaidPreviousmonth = sb.Length > 0 ? true : false;
+                        dto.NotPaidPreviousmonth = checkUnpaymentDetails.Any() ? true : false;
                         preFinanceList.Add(dto);
                     }
 
@@ -174,6 +213,7 @@ namespace BlazorEcommerce.Server.Services.FinanceService
                         dto.Note = null;
                         preFinanceList.Add(dto);
                     }
+                    sb.Clear();
                 }
 
                 return new ServiceResponse<List<FinanceDto>> { Data = preFinanceList };
@@ -194,19 +234,70 @@ namespace BlazorEcommerce.Server.Services.FinanceService
         }
 
         
-        public async Task AddFinanceDateForNewPerson(Guid personId)
+        public async Task AddFinanceDateForNewPerson(FinanceOperation.Operation operation ,Guid personId,int? startMonth = null, int? startDay = null)
         {
-            FinanceDto financeDto = new FinanceDto();
-            for (int y = DateTime.Now.Year; y <= DateTime.Now.Year + 5; y++)
+            if (startMonth == null) {
+                startMonth = DateTime.Now.Month;
+            }
+
+            if (startDay == null)
             {
-                for (int m = 1; m <= 12; m++)
+                startDay = _defaultStartingDayForFinanceDueDate;
+            }
+
+            FinanceDto financeDto = new FinanceDto();
+            Finance financeEntitity = null;
+
+            var dueDateTime = new DateTime(DateTime.Now.Year, 1, 1);
+            DateTime lastDueDate = new DateTime();
+            for (int y = DateTime.Now.Year; y <= DateTime.Now.Year + _defaultAddYearsForFinanceDueDate; y++)
+            {
+                int i = 1;
+                if (y == DateTime.Now.Year)
+                    dueDateTime = new DateTime(y, (y == DateTime.Now.Year ? startMonth.Value : 1), startDay.Value);
+                else
+                    dueDateTime = lastDueDate.AddDays(28);
+
+
+                for (int m = (y == DateTime.Now.Year ? startMonth.Value : 1); m <= 12; m++)
                 {
-                    financeDto.Personid = personId;
-                    financeDto.Financedate = new DateTime(y, m, 1);
-                    financeDto.Duedateday = 15;
-                    financeDto.Ispaid = ((m < DateTime.Now.Month && y < DateTime.Now.Year + 1) ? true : false);
-                    _context.Finance.Add(_mapper.Map<Finance>(financeDto));
+                    
+                    //Skip first
+                    if (i > 1)
+                    {
+                            dueDateTime = lastDueDate.AddDays(28);
+                       
+
+                    }
+
+                    if(operation == FinanceOperation.Operation.Add)
+                    {
+                        financeDto.Personid = personId;
+                        financeDto.Financedate = new DateTime(y, m, 1);
+                        financeDto.Duedateday = null;
+                        financeDto.Duedateday2 = null;
+                        financeDto.Ispaid = ((m < DateTime.Now.Month && y < DateTime.Now.Year + 1) ? true : false);
+                        _context.Finance.Add(_mapper.Map<Finance>(financeDto));
+                        
+                    }
+
+
+                    if (operation == FinanceOperation.Operation.Update)
+                    {
+                        var dbFinance = await _context.Finance.FirstOrDefaultAsync(p => p.Personid == personId && p.Financedate.Year == y && p.Financedate.Month == m);
+                        if (dbFinance != null)
+                        {
+                            dbFinance.Duedateday = dueDateTime.Day;
+                            var compare = new DateTime(dbFinance.Financedate.Year, dbFinance.Financedate.Month, dbFinance.Duedateday.Value).AddDays(28);
+
+                            var doublePaymentInMonth = compare.Month == dbFinance.Financedate.Month && compare.Year == dbFinance.Financedate.Year;
+                            dbFinance.Duedateday2 = doublePaymentInMonth ? compare.Day : null;
+                            lastDueDate = dbFinance.Duedateday2.HasValue ? new DateTime(dbFinance.Financedate.Year, dbFinance.Financedate.Month, dbFinance.Duedateday2.Value) : dueDateTime;
+                        }
+                    }
                     await _context.SaveChangesAsync();
+
+                    i++;
                 }
             }
         }
@@ -217,20 +308,9 @@ namespace BlazorEcommerce.Server.Services.FinanceService
             FinanceDto financeDto = new FinanceDto();
             var personList = await _personService.Value.GetPersonListAsync();
 
-            foreach (var person in personList.Data.Take(1))
+            foreach (var person in personList?.Data)
             {
-                for (int y = DateTime.Now.Year; y <= DateTime.Now.Year + 5; y++)
-                {
-                    for (int m = 1; m <= 12; m++)
-                    {
-                        financeDto.Personid = person.Personid;
-                        financeDto.Financedate = new DateTime(y, m, 1);
-                        financeDto.Duedateday = 15;
-                        financeDto.Ispaid = ((m < DateTime.Now.Month && y < DateTime.Now.Year + 1) ? true : false);
-                        _context.Finance.Add(_mapper.Map<Finance>(financeDto));
-                        await _context.SaveChangesAsync();
-                    }
-                }
+                await AddFinanceDateForNewPerson(FinanceOperation.Operation.Add, person.Personid,1,1);
             }
 
             

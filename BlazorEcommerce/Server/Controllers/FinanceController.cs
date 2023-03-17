@@ -40,10 +40,10 @@ namespace BlazorEcommerce.Server.Controllers
             return Ok(result);
         }
 
-        [HttpGet("{day}/{month}")]
-        public async Task<ActionResult<ServiceResponse<List<FinanceDto>>>> GetFinanceList([FromRoute]int day, [FromRoute] int month)
+        [HttpGet("{year}/{month}")]
+        public async Task<ActionResult<ServiceResponse<List<FinanceDto>>>> GetFinanceList([FromRoute]int year, [FromRoute] int month)
         {
-            var result = await _FinanceService.GetFinanceListAsync(day,month);
+            var result = await _FinanceService.GetFinanceListAsync(year, month);
             return Ok(result);
         }
 

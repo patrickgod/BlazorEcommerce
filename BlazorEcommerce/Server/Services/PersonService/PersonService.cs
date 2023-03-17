@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BlazorEcommerce.Server.Services.FinanceService;
 using BlazorEcommerce.Shared.Models;
 
 namespace BlazorEcommerce.Server.Services.PersonService
@@ -25,7 +26,9 @@ namespace BlazorEcommerce.Server.Services.PersonService
             var objectToAdd = _mapper.Map<Person>(person);
             _context.Person.Add(objectToAdd);
              await _context.SaveChangesAsync();
-            await _financeService.AddFinanceDateForNewPerson(objectToAdd.Personid);
+
+            //Add Finance record for new user
+            await _financeService.AddFinanceDateForNewPerson(FinanceOperation.Operation.Add, objectToAdd.Personid);
             return new ServiceResponse<PersonDto> { Data = person };
 
             //throw new NotImplementedException();
@@ -83,8 +86,11 @@ namespace BlazorEcommerce.Server.Services.PersonService
             }
 
             dbProduct.Deleted = true;
-
             await _context.SaveChangesAsync();
+
+            //Delete from Finance
+            //await this._financeService.DeleteByPersonId(personID);
+
             return new ServiceResponse<bool> { Data = true };
         }
 

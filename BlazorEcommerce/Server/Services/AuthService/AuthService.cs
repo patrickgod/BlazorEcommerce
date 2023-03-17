@@ -27,24 +27,34 @@ namespace BlazorEcommerce.Server.Services.AuthService
         public async Task<ServiceResponse<string>> Login(string email, string password)
         {
             var response = new ServiceResponse<string>();
-            var user = await _context.Users
-                .FirstOrDefaultAsync(x => x.Email.ToLower().Equals(email.ToLower()));
-            if (user == null)
+            try
             {
-                response.Success = false;
-                response.Message = "User not found.";
-            }
-            else if (!VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
-            {
-                response.Success = false;
-                response.Message = "Wrong password.";
-            }
-            else
-            {
-                response.Data = CreateToken(user);
-            }
+                var user = await _context.Users
+                               .FirstOrDefaultAsync(x => x.Email.ToLower().Equals(email.ToLower()));
 
-            return response;
+                if (user == null)
+                {
+                    response.Success = false;
+                    response.Message = "User not found.";
+                }
+                else if (!VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
+                {
+                    response.Success = false;
+                    response.Message = "Wrong password.";
+                }
+                else
+                {
+                    response.Data = CreateToken(user);
+                }
+
+                return response;
+            }
+            catch (Exception exp)
+            {
+
+                throw;
+            }
+           
         }
 
         public async Task<ServiceResponse<int>> Register(Users user, string password)

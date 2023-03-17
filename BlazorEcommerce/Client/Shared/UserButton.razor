@@ -47,7 +47,7 @@
     {
         await LocalStorage.RemoveItemAsync("authToken");
         //await CartService.GetCartItemsCount();
-        //await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        await AuthenticationStateProvider.GetAuthenticationStateAsync();
         NavigationManager.NavigateTo("login");
     }
 }
