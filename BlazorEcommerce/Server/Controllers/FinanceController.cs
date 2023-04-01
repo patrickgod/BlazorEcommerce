@@ -8,7 +8,7 @@ namespace BlazorEcommerce.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class FinanceController : Controller
     {
         private readonly IFinanceService _FinanceService;
@@ -26,11 +26,19 @@ namespace BlazorEcommerce.Server.Controllers
             return Ok(result);
         }
 
-        [HttpPut("{selectedMonth}")]
-        public async Task<ActionResult<ServiceResponse<FinanceDto>>> UpdateFinance(FinanceDto Finance, [FromRoute] int selectedMonth)
+        [HttpPut("{skipRecalculate}")]
+        public async Task<ActionResult<ServiceResponse<FinanceDto>>> UpdateFinance(FinanceDto Finance, [FromRoute] bool skipRecalculate = false)
         {
-            var result = await _FinanceService.UpdateFinance(Finance, selectedMonth);
+            var result = await _FinanceService.UpdateFinance(Finance, skipRecalculate);
             return Ok(result);
+        }
+
+
+        [HttpPut("offsetDay")]
+        public async Task<ActionResult<bool>> UpdateFinance([FromBody]  int offsetDay)
+        {
+            //var result = await _FinanceService.UpdateFinance(Finance, selectedMonth);
+            return Ok(true);
         }
 
         [HttpDelete("{Financeid}")]

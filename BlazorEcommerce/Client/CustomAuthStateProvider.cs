@@ -75,5 +75,18 @@ namespace BlazorEcommerce.Client
 
             return claims;
         }
+
+        public async Task<DateTime?> GetTokenExpTime()
+        {
+            string authToken = await _localStorageService.GetItemAsStringAsync("authToken");
+            if (authToken == null) return null;
+
+            var claims = ParseClaimsFromJwt(authToken);
+            if(claims == null) return null;
+
+            var tokenExp = Int32.Parse(claims.FirstOrDefault(c => c.Type == "exp")?.Value ?? "");
+            var expirationTime = DateTimeOffset.FromUnixTimeSeconds(tokenExp).DateTime.AddHours(3);
+            return expirationTime;
+        }
     }
 }

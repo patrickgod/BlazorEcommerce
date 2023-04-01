@@ -125,8 +125,9 @@ namespace BlazorEcommerce.Server.Services.AuthService
 
             var token = new JwtSecurityToken(
                     claims: claims,
-                    expires: DateTime.Now.AddDays(3),
-                    signingCredentials: creds);
+                    expires: DateTime.UtcNow.AddDays(15),
+                    signingCredentials: creds
+                    );
 
             var jwt = new JwtSecurityTokenHandler().WriteToken(token);
 
@@ -158,6 +159,13 @@ namespace BlazorEcommerce.Server.Services.AuthService
         public async Task<Users> GetUserByEmail(string email)
         {
             return await _context.Users.FirstOrDefaultAsync(u => u.Email.Equals(email));
+        }
+
+        public DateTime GetTokenExpTime()
+        {
+            var tokenExp = Int32.Parse(_httpContextAccessor?.HttpContext?.User.Claims.FirstOrDefault(c => c.Type == "exp")?.Value ?? "");
+            var expirationTime = DateTimeOffset.FromUnixTimeSeconds(tokenExp).DateTime.AddHours(3);
+            return expirationTime;
         }
     }
 }

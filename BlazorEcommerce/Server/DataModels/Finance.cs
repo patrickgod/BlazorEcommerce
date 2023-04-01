@@ -11,6 +11,7 @@ namespace BlazorEcommerce.Server.Data
         public DateTime Financedate { get; set; }
         public int? Duedateday { get; set; }
         public int? Duedateday2 { get; set; }
+        public int? Iterateduedate { get; set; }
         public Guid? Personid { get; set; }
         public bool Ispaid { get; set; }
         public DateTime? Paymentdate { get; set; }

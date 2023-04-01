@@ -13,7 +13,9 @@ namespace BlazorEcommerce.Client.Services.FinanceService
         Task GetFinanceList(int year, int month);
 
         Task<FinanceDto> CreateFinance(FinanceDto Finance);
-        Task<FinanceDto> UpdateFinance(FinanceDto Finance, int selectedMonth);
+        Task<FinanceDto> UpdateFinance(FinanceDto Finance, bool skipRecalculate = false);
         Task DeleteFinance(FinanceDto Finance);
+
+        Task<bool> UpdateAllPersonDueDateOffset(int offsetDay);
     }
 }

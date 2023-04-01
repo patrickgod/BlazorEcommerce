@@ -54,7 +54,7 @@ namespace BlazorEcommerce.Server.Services.FinanceService
 
         }
 
-        public async Task<ServiceResponse<FinanceDto>> UpdateFinance(FinanceDto Finance, int selectedMonth)
+        public async Task<ServiceResponse<FinanceDto>> UpdateFinance(FinanceDto Finance,bool skipRecalculate = false)
         {
             if (!Finance.Ispaid)
             {
@@ -83,8 +83,11 @@ namespace BlazorEcommerce.Server.Services.FinanceService
                 await _context.SaveChangesAsync();
 
                 //Update all due date of person
-                //await _context.Finance.Where(p => p.Personid == Finance.Personid).ForEachAsync(t=>t.Duedateday = Finance.Duedateday);
-                await AddFinanceDateForNewPerson(FinanceOperation.Operation.Update, Finance.Personid, Finance.Financedate.Month,Finance.Duedateday);
+                if (skipRecalculate != false)
+                    await RecalculateFinancaDueDates(FinanceOperation.Operation.Update, Finance.Personid, Finance.Financedate.Month, Finance.Duedateday);
+                else
+                    await IterateDueDay(Finance);
+
                 //await _context.SaveChangesAsync();
 
             }
@@ -135,8 +138,6 @@ namespace BlazorEcommerce.Server.Services.FinanceService
 
         public async Task<ServiceResponse<List<FinanceDto>>> GetFinanceListAsync(int year,int month)
         {
-            //Daterange;
-            //https://blazor.syncfusion.com/documentation/datepicker/date-range;
 
             try
             {
@@ -233,8 +234,29 @@ namespace BlazorEcommerce.Server.Services.FinanceService
             throw new NotImplementedException();
         }
 
-        
-        public async Task AddFinanceDateForNewPerson(FinanceOperation.Operation operation ,Guid personId,int? startMonth = null, int? startDay = null)
+        public async Task IterateDueDay(FinanceDto dto)
+        {
+            var currentEntity = await _context.Finance.Where(s => s.Financeid == dto.Financeid).FirstOrDefaultAsync();
+            if (currentEntity?.Duedateday != null && dto.IteratedDays != null)
+            {
+                var currentDueDate = new DateTime(currentEntity.Financedate.Year, currentEntity.Financedate.Month, currentEntity.Duedateday.Value);
+                var newDueDate = currentDueDate.AddDays(dto.IteratedDays.Value);
+
+                //Iterated days on next month
+                if (newDueDate.Year > currentDueDate.Year || newDueDate.Month > currentDueDate.Month)
+                {
+                    currentEntity.Iterateduedate = newDueDate.Day;
+                }
+
+                else
+                    currentEntity.Duedateday = newDueDate.Day;
+                _context.SaveChanges(); 
+
+
+            }
+        }
+
+        public async Task RecalculateFinancaDueDates(FinanceOperation.Operation operation ,Guid personId,int? startMonth = null, int? startDay = null)
         {
             if (startMonth == null) {
                 startMonth = DateTime.Now.Month;
@@ -310,7 +332,7 @@ namespace BlazorEcommerce.Server.Services.FinanceService
 
             foreach (var person in personList?.Data)
             {
-                await AddFinanceDateForNewPerson(FinanceOperation.Operation.Add, person.Personid,1,1);
+                await RecalculateFinancaDueDates(FinanceOperation.Operation.Add, person.Personid,1,1);
             }
 
             

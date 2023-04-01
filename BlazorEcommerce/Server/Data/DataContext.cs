@@ -92,6 +92,8 @@ namespace BlazorEcommerce.Server.Data
 
                 entity.Property(e => e.Ispaid).HasColumnName("ISPAID");
 
+                entity.Property(e => e.Iterateduedate).HasColumnName("ITERATEDUEDATE");
+
                 entity.Property(e => e.Paymentdate).HasColumnName("PAYMENTDATE");
 
                 entity.Property(e => e.Personid).HasColumnName("PERSONID");

@@ -32,11 +32,11 @@ namespace BlazorEcommerce.Client.Services.FinanceService
             var result = await _http.DeleteAsync($"api/Finance/{Finance.Financeid}");
         }
 
-        public async Task<FinanceDto> UpdateFinance(FinanceDto Finance, int selectedMonth)
+        public async Task<FinanceDto> UpdateFinance(FinanceDto Finance, bool skipRecalculate = false)
         {
-            var result = await _http.PutAsJsonAsync($"api/Finance/{selectedMonth}", Finance);
+            var result = await _http.PutAsJsonAsync($"api/Finance/{skipRecalculate}", Finance);
             var content = await result.Content.ReadFromJsonAsync<ServiceResponse<FinanceDto>>();
-            return content.Data;
+            return content?.Data;
         }
 
 
@@ -54,6 +54,14 @@ namespace BlazorEcommerce.Client.Services.FinanceService
                 Message = "No products found";
 
             FinanceChanged.Invoke();
+        }
+
+        public async Task<bool> UpdateAllPersonDueDateOffset(int offsetDay)
+        {
+
+            var result = await _http.PutAsJsonAsync($"api/Finance/offsetDay", offsetDay);
+            var content = await result.Content.ReadFromJsonAsync<bool>();
+            return content;
         }
 
     }

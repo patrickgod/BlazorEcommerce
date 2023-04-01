@@ -17,7 +17,8 @@
 @implements IDisposable
 @attribute [Authorize];
 @inject CustomAuthStateProvider AuthStateProvider;
-@inject NavigationManager NavigationManager
+@inject NavigationManager NavigationManager;
+@inject CustomAuthStateProvider AuthenticationStateProvider;
 
 
 @{
@@ -25,15 +26,39 @@
     var SpecificCols = (new string[] { "FullName" });
 }
 <div  id="container">
-    <div style="display:flex;justify-content:start;align-items:flex-start">
+    <div style="display:flex;justify-content:start;align-items:flex-start;">
         <h3><span>Ödeme Bilgileri</span></h3>
     </div>
 
-    <SfComboBox TValue="string" Placeholder="Ay seçiniz" AllowFiltering="true" TItem="Month" @bind-Index="@currentMonthIndex" DataSource="@months">
-        <ComboBoxEvents TItem="Month" TValue="string" ValueChange="@MonthComboboxValueChangeHandler"></ComboBoxEvents>
-        <ComboBoxFieldSettings Text="Name" Value="Value"></ComboBoxFieldSettings>
-    </SfComboBox>
+    <div style="padding-top:10px;padding-bottom:10px;border-bottom:1px solid #bdbdbd">
+        <SfComboBox TValue="string" Placeholder="Ay seçiniz" AllowFiltering="true" TItem="Month" @bind-Index="@currentMonthIndex" DataSource="@months">
+            <ComboBoxEvents TItem="Month" TValue="string" ValueChange="@MonthComboboxValueChangeHandler"></ComboBoxEvents>
+            <ComboBoxFieldSettings Text="Name" Value="Value"></ComboBoxFieldSettings>
+        </SfComboBox>
+    </div>
+    
+    <div style="padding-top:10px;padding-bottom:10px;border-bottom:1px solid grey;display:flex;justify-content:start;align-items:flex-start;flex-direction:column;font-weight:bold;font-size:12px">
+        <div style="display:flex;justify-content:start;flex-direction:column;gap:1px;align-items:start;width:100%;">
+            <span>Seçili öğrencinin ödeme gününü belirle </span>
+            <span style="width:100%">
+                @*<SfNumericTextBox ID="SelectedPersonDueDate" Width="50%" Min="1" Max="31" TValue="int?" ValidateOnInput="true"></SfNumericTextBox> *@
+                <SfDatePicker ID="PersonNewDueDate" Width="50%"  Min='@MinDate' Max='@MaxDate' Enabled="true" ShowTodayButton="false"  ShowClearButton="true" AllowEdit="true"
+                              Format="dd/MM/yyyy" TValue="DateTime?" Placeholder="Ödeme yapılan tarihi seçiniz!"> </SfDatePicker>
+                <SfButton IsPrimary="true">Kaydet</SfButton>
+            </span>
+        </div>
 
+        <div style="display:flex;justify-content:start;flex-direction:column;gap:1px;align-items:start;width:100%;padding-top:15px">
+            <span>Tüm öğrencilerin ödeme gününü ötele </span>
+            <span style="width:100%">
+                @*<SfNumericTextBox ID="SelectedPersonDueDate" Width="50%" Min="1" Max="31" TValue="int?" ValidateOnInput="true"></SfNumericTextBox> *@
+                <SfNumericTextBox ID="AllPersonDueDate" @bind-Value="allPersonDueDateOffset" Width="50%" Min="1" Max="31" TValue="int?" ValidateOnInput="true"></SfNumericTextBox>
+                <SfButton OnClick="UpdateAllDueDate" IsPrimary="true">Kaydet</SfButton>
+            </span>
+        </div>
+    </div>
+
+    
 
     @*Main Grid*@
     <SfGrid @ref="gridfinance" DataSource="@FinanceService.Finance" EnableAdaptiveUI="true" AdaptiveUIMode="AdaptiveMode.Both" Width="%80" Height="%90"
@@ -142,7 +167,10 @@
     private int selectedYear = DateTime.Now.Year;
 
     public DateTime MinDate  = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 01);
-    public DateTime MaxDate  = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 31);
+    public DateTime MaxDate  = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 01);
+    public DateTime MaxDateIteration = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 01);
+
+    public int? allPersonDueDateOffset = null;
 
 
     public class Month{
@@ -195,7 +223,10 @@
 
     public async Task GetData(int year,int month)
     {
+        var tokenExp = await AuthenticationStateProvider.GetTokenExpTime();
+        Console.WriteLine(tokenExp);
         await FinanceService.GetFinanceList(year,month);
+
         this.VisibleProperty = false;
 
     }
@@ -228,16 +259,22 @@
         {
             this.MinDate = new DateTime(DateTime.Now.Year, this.selectedMonth, 01);
             var maxDay = DateTime.DaysInMonth(DateTime.Now.Year, this.selectedMonth);
+            var maxDayIteration = maxDay;
+            if(this.selectedMonth == 12)
+            {
+                maxDayIteration = DateTime.DaysInMonth(DateTime.Now.Year, 1);
+            }
+
             this.MaxDate = new DateTime(DateTime.Now.Year, this.selectedMonth, maxDay);
-            //this.DatePicker.Min = this.MinDate;
-            //this.DatePicker.Max = this.MaxDate;
+            //this.MaxDateIteration = new DateTime(DateTime.Now.Year, this.selectedMonth+1, maxDay);
+           
         }
         catch (Exception exp)
         {
-            
+
             throw;
         }
-       
+
     }
 
     //Grid Actions
@@ -259,7 +296,7 @@
             Args.Cell.AddStyle(new string[] { "background-color:#e5000073" });
         }
     }
-    
+
 
     //Grid custom search
     public async Task OnInput(InputEventArgs Args)
@@ -286,6 +323,21 @@
 
 
     }
+
+    public async Task UpdateAllDueDate()
+    {
+        if(this.allPersonDueDateOffset != null){
+            await FinanceService.UpdateAllPersonDueDateOffset(this.allPersonDueDateOffset.Value);
+            gridfinance?.Refresh();
+            gridfinance?.SearchAsync(null);
+        }
+        
+
+
+    }
+
+    
+
     public async Task ActionBeginHandler(ActionEventArgs<FinanceDto> Args)
     {
 
@@ -299,7 +351,7 @@
             }
             else
             {
-                await FinanceService.UpdateFinance(Args.Data,DateTime.Now.Month);
+                await FinanceService.UpdateFinance(Args.Data,false);
                 await gridfinance.CloseEditAsync();
                 //LibraryService.UpdateBook(Args.Data.Id, Args.Data);
             }
@@ -355,6 +407,16 @@
 
     .e-spinner-pane.e-customClass .e-spinner-inner .e-spin-material {
         stroke: #808080;
+    }
+
+    .e-custom {
+        border-radius: 0;
+        width: 25%;
+    }
+
+    .e-custom, .e-custom:hover, .e-custom:focus, .e-custom:active {
+        background-color: #ff6e40;
+        color: #fff;
     }
 
 </style>

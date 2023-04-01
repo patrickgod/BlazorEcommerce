@@ -28,7 +28,7 @@ namespace BlazorEcommerce.Server.Services.PersonService
              await _context.SaveChangesAsync();
 
             //Add Finance record for new user
-            await _financeService.AddFinanceDateForNewPerson(FinanceOperation.Operation.Add, objectToAdd.Personid);
+            await _financeService.RecalculateFinancaDueDates(FinanceOperation.Operation.Add, objectToAdd.Personid,1,1);
             return new ServiceResponse<PersonDto> { Data = person };
 
             //throw new NotImplementedException();

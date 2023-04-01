@@ -29,6 +29,9 @@ namespace BlazorEcommerce.Shared.Models
         public int? Duedateday { get; set; }
         public int? Duedateday2 { get; set; }
 
+        public int? Iterateduedate { get; set; }
+
+        public int? IteratedDays { get; set; }
 
         [ReadOnly(true)]
         [NotMapped]

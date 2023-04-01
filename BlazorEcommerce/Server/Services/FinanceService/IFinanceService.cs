@@ -9,7 +9,7 @@ namespace BlazorEcommerce.Server.Services.FinanceService
          Task<ServiceResponse<FinanceDto>> GetFinanceAsync(int FinanceId);
          Task<ServiceResponse<FinanceDto>> GetFinanceListByName(string searchText);
          Task<ServiceResponse<FinanceDto>> CreateFinance(FinanceDto FinanceDto);
-         Task<ServiceResponse<FinanceDto>> UpdateFinance(FinanceDto FinanceDto,int selectedMonth);
+        Task<ServiceResponse<FinanceDto>> UpdateFinance(FinanceDto Finance, bool skipRecalculate = false);
          Task<ServiceResponse<bool>> DeleteFinance(Guid FinanceDtoId);
         Task DeleteByPersonId(Guid personId);
         Task FillData();
